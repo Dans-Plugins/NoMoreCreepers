@@ -89,7 +89,7 @@ public class NoMoreCreepers extends AbstractPonderPlugin {
     }
 
     private void initializeConfigFile() {
-        if (!(new File("./plugins/ModAssist/config.yml").exists())) {
+        if (!(new File("./plugins/NoMoreCreepers/config.yml").exists())) {
             getPonderAPI().getConfigService().saveMissingConfigDefaultsIfNotPresent();
         }
         else {
