@@ -1,5 +1,6 @@
 package dansplugins.nomorecreepers.eventhandlers;
 
+import dansplugins.nomorecreepers.NoMoreCreepers;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
@@ -10,6 +11,9 @@ public class SpawnHandler implements Listener {
 
     @EventHandler()
     public void handle(EntitySpawnEvent event) {
+        if (NoMoreCreepers.getInstance().isSpawningAllowed()) {
+            return;
+        }
         Entity entity = event.getEntity();
         if (entity instanceof Creeper) {
             event.setCancelled(true);
