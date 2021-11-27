@@ -6,7 +6,22 @@ import org.bukkit.command.CommandSender;
 import preponderous.ponder.misc.AbstractCommand;
 import preponderous.ponder.services.ConfigService;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 public class ConfigCommand extends AbstractCommand {
+    private ArrayList<String> names = new ArrayList<>(Collections.singletonList("config"));
+    private ArrayList<String> permissions = new ArrayList<>(Collections.singletonList("nmc.config"));
+
+    @Override
+    public ArrayList<String> getNames() {
+        return names;
+    }
+
+    @Override
+    public ArrayList<String> getPermissions() {
+        return permissions;
+    }
 
     ConfigService configService = NoMoreCreepers.getInstance().getPonderAPI().getConfigService();
 

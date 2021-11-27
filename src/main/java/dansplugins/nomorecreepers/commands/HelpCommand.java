@@ -10,7 +10,7 @@ import java.util.Collections;
 public class HelpCommand extends AbstractCommand {
 
     private ArrayList<String> names = new ArrayList<>(Collections.singletonList("help"));
-    private ArrayList<String> permissions = new ArrayList<>(Collections.singletonList("l.help"));
+    private ArrayList<String> permissions = new ArrayList<>(Collections.singletonList("nmc.help"));
 
     @Override
     public ArrayList<String> getNames() {
