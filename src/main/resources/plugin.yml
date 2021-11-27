@@ -1,0 +1,4 @@
+name: NoMoreCreepers
+version: v0.3
+main: dansplugins.nomorecreepers.NoMoreCreepers
+api-version: 1.13
