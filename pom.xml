@@ -6,7 +6,7 @@
 
     <groupId>dansplugins</groupId>
     <artifactId>NoMoreCreepers</artifactId>
-    <version>v0.4</version>
+    <version>v0.5-alpha-2</version>
     <packaging>jar</packaging>
 
     <name>NoMoreCreepers</name>
@@ -73,7 +73,7 @@
         <dependency>
             <groupId>preponderous</groupId>
             <artifactId>ponder</artifactId>
-            <version>v0.8-beta-2</version>
+            <version>v0.15-alpha-2</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

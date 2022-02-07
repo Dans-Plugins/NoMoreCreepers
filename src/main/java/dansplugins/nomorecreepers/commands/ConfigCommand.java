@@ -1,29 +1,19 @@
 package dansplugins.nomorecreepers.commands;
 
 import dansplugins.nomorecreepers.NoMoreCreepers;
+import dansplugins.nomorecreepers.services.LocalConfigService;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import preponderous.ponder.misc.AbstractCommand;
-import preponderous.ponder.services.ConfigService;
+import preponderous.ponder.minecraft.bukkit.abs.AbstractPluginCommand;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 
-public class ConfigCommand extends AbstractCommand {
-    private ArrayList<String> names = new ArrayList<>(Collections.singletonList("config"));
-    private ArrayList<String> permissions = new ArrayList<>(Collections.singletonList("nmc.config"));
+public class ConfigCommand extends AbstractPluginCommand {
 
-    @Override
-    public ArrayList<String> getNames() {
-        return names;
+    public ConfigCommand() {
+        super(new ArrayList<>(Arrays.asList("config")), new ArrayList<>(Arrays.asList("nmc.config")));
     }
-
-    @Override
-    public ArrayList<String> getPermissions() {
-        return permissions;
-    }
-
-    ConfigService configService = NoMoreCreepers.getInstance().getPonderAPI().getConfigService();
 
     @Override
     public boolean execute(CommandSender sender) {
@@ -39,7 +29,7 @@ public class ConfigCommand extends AbstractCommand {
         }
 
         if (args[0].equalsIgnoreCase("show")) {
-            configService.sendConfigList(sender);
+            LocalConfigService.getInstance().sendConfigList(sender);
             return true;
         }
         else if (args[0].equalsIgnoreCase("set")) {
@@ -51,7 +41,7 @@ public class ConfigCommand extends AbstractCommand {
 
             String value = args[2];
 
-            configService.setConfigOption(option, value, sender);
+            LocalConfigService.getInstance().setConfigOption(option, value, sender);
             return true;
         }
         else {

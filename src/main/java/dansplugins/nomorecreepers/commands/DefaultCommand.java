@@ -3,9 +3,16 @@ package dansplugins.nomorecreepers.commands;
 import dansplugins.nomorecreepers.NoMoreCreepers;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import preponderous.ponder.misc.AbstractCommand;
+import preponderous.ponder.minecraft.bukkit.abs.AbstractPluginCommand;
 
-public class DefaultCommand extends AbstractCommand {
+import java.util.ArrayList;
+import java.util.Arrays;
+
+public class DefaultCommand extends AbstractPluginCommand {
+
+    public DefaultCommand() {
+        super(new ArrayList<>(Arrays.asList("default")), new ArrayList<>(Arrays.asList("nmc.default")));
+    }
 
     @Override
     public boolean execute(CommandSender commandSender) {
