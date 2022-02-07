@@ -55,7 +55,8 @@ public class LocalConfigService {
             } else if (option.equalsIgnoreCase("A")) {
                 getConfig().set(option, Integer.parseInt(value));
                 sender.sendMessage(ChatColor.GREEN + "Integer set.");
-            } else if (option.equalsIgnoreCase("debugMode")) {
+            } else if (option.equalsIgnoreCase("debugMode")
+                    || option.equalsIgnoreCase("allowSpawning")) {
                 getConfig().set(option, Boolean.parseBoolean(value));
                 sender.sendMessage(ChatColor.GREEN + "Boolean set.");
             } else if (option.equalsIgnoreCase("C")) {
@@ -77,7 +78,8 @@ public class LocalConfigService {
     public void sendConfigList(CommandSender sender) {
         sender.sendMessage(ChatColor.AQUA + "=== Config List ===");
         sender.sendMessage(ChatColor.AQUA + "version: " + getConfig().getString("version")
-                + ", debugMode: " + getString("debugMode"));
+                + ", debugMode: " + getString("debugMode")
+                + ", allowSpawning: " + getString("allowSpawning"));
     }
 
     public boolean hasBeenAltered() {
