@@ -21,7 +21,7 @@ import java.util.Arrays;
 
 public class NoMoreCreepers extends PonderBukkitPlugin {
     private static NoMoreCreepers instance;
-    private final String version = "v0.4";
+    private final String pluginVersion = "v" + getDescription().getVersion();
     private final CommandService commandService = new CommandService((PonderMC) getPonder());
 
     public static NoMoreCreepers getInstance() {
@@ -56,9 +56,8 @@ public class NoMoreCreepers extends PonderBukkitPlugin {
     }
 
     public String getVersion() {
-        return version;
+        return pluginVersion;
     }
-
     public boolean isVersionMismatched() {
         String configVersion = this.getConfig().getString("version");
         if (configVersion == null || this.getVersion() == null) {

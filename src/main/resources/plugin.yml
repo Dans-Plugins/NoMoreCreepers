@@ -1,5 +1,5 @@
 name: NoMoreCreepers
-version: v0.5
+version: '${project.version}'
 main: dansplugins.nomorecreepers.NoMoreCreepers
 api-version: 1.13
 
