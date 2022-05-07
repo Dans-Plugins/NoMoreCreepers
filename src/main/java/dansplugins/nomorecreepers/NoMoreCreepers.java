@@ -34,7 +34,7 @@ public class NoMoreCreepers extends PonderBukkitPlugin {
 
         // bStats
         int pluginId = 13432;
-        Metrics metrics = new Metrics(this, pluginId);
+        new Metrics(this, pluginId);
 
         initializeConfigFile();
         registerEventHandlers();
