@@ -1,7 +1,6 @@
 package dansplugins.nomorecreepers.commands;
 
-import dansplugins.nomorecreepers.NoMoreCreepers;
-import dansplugins.nomorecreepers.services.LocalConfigService;
+import dansplugins.nomorecreepers.services.ConfigService;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import preponderous.ponder.minecraft.bukkit.abs.AbstractPluginCommand;
@@ -10,9 +9,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class ConfigCommand extends AbstractPluginCommand {
+    private final ConfigService configService;
 
-    public ConfigCommand() {
+    public ConfigCommand(ConfigService configService) {
         super(new ArrayList<>(Arrays.asList("config")), new ArrayList<>(Arrays.asList("nmc.config")));
+        this.configService = configService;
     }
 
     @Override
@@ -29,7 +30,7 @@ public class ConfigCommand extends AbstractPluginCommand {
         }
 
         if (args[0].equalsIgnoreCase("show")) {
-            LocalConfigService.getInstance().sendConfigList(sender);
+            configService.sendConfigList(sender);
             return true;
         }
         else if (args[0].equalsIgnoreCase("set")) {
@@ -41,7 +42,7 @@ public class ConfigCommand extends AbstractPluginCommand {
 
             String value = args[2];
 
-            LocalConfigService.getInstance().setConfigOption(option, value, sender);
+            configService.setConfigOption(option, value, sender);
             return true;
         }
         else {

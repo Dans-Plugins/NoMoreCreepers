@@ -15,28 +15,21 @@ import org.bukkit.configuration.file.FileConfiguration;
 /**
  * @author Daniel McCoy Stephenson
  */
-public class LocalConfigService {
+public class ConfigService {
+    private final NoMoreCreepers noMoreCreepers;
 
-    private static LocalConfigService instance;
     private boolean altered = false;
 
-    private LocalConfigService() {
-
-    }
-
-    public static LocalConfigService getInstance() {
-        if (instance == null) {
-            instance = new LocalConfigService();
-        }
-        return instance;
+    public ConfigService(NoMoreCreepers noMoreCreepers) {
+        this.noMoreCreepers = noMoreCreepers;
     }
 
     public void saveMissingConfigDefaultsIfNotPresent() {
         // set version
         if (!getConfig().isString("version")) {
-            getConfig().addDefault("version", NoMoreCreepers.getInstance().getVersion());
+            getConfig().addDefault("version", noMoreCreepers.getVersion());
         } else {
-            getConfig().set("version", NoMoreCreepers.getInstance().getVersion());
+            getConfig().set("version", noMoreCreepers.getVersion());
         }
 
         // save config options
@@ -44,7 +37,7 @@ public class LocalConfigService {
         if (!isSet("allowSpawning")) { getConfig().set("allowSpawning", false); }
 
         getConfig().options().copyDefaults(true);
-        NoMoreCreepers.getInstance().saveConfig();
+        noMoreCreepers.saveConfig();
     }
 
     public void setConfigOption(String option, String value, CommandSender sender) {
@@ -68,7 +61,7 @@ public class LocalConfigService {
             }
 
             // save
-            NoMoreCreepers.getInstance().saveConfig();
+            noMoreCreepers.saveConfig();
             altered = true;
         } else {
             sender.sendMessage(ChatColor.RED + "That config option wasn't found.");
@@ -87,7 +80,7 @@ public class LocalConfigService {
     }
 
     public FileConfiguration getConfig() {
-        return NoMoreCreepers.getInstance().getConfig();
+        return noMoreCreepers.getConfig();
     }
 
     public boolean isSet(String option) {
