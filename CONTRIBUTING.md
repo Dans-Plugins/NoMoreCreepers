@@ -49,7 +49,7 @@ Issues are grouped into [milestones](https://github.com/Dans-Plugins/NoMoreCreep
 
 ### Language Files
 
-Update `src/main/resources/lang/` for any user-facing string changes.
+Update user-facing strings in the appropriate configuration files (for example, `src/main/resources/plugin.yml`).
 
 ## Testing
 
