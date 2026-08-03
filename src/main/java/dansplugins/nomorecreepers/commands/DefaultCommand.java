@@ -20,7 +20,7 @@ public class DefaultCommand extends AbstractPluginCommand {
     public boolean execute(CommandSender commandSender) {
         commandSender.sendMessage(ChatColor.AQUA + "NoMoreCreepers " + noMoreCreepers.getVersion());
         commandSender.sendMessage(ChatColor.AQUA + "Developed by: Daniel Stephenson");
-        commandSender.sendMessage(ChatColor.AQUA + "Wiki: https://github.com/dmccoystephenson/NoMoreCreepers/wiki");
+        commandSender.sendMessage(ChatColor.AQUA + "Wiki: https://github.com/Dans-Plugins/NoMoreCreepers/wiki");
         return true;
     }
 
