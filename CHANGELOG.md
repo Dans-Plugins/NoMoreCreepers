@@ -11,6 +11,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `/nmc config set` usage message now shows the correct `/nmc` command prefix instead of the stale `/c` prefix
 - `/nmc` plugin info now links to the current `Dans-Plugins/NoMoreCreepers` wiki instead of the old org's wiki
 
+### Removed
+
+- Dead `'A'` and `'C'` option branches in `ConfigService.setConfigOption` left over from a template; the plugin's only settable options are `debugMode` and `allowSpawning`, both handled by the boolean branch
+
 ## [1.1.0]
 
 ### Added
