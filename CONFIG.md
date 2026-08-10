@@ -12,7 +12,7 @@ The configuration file is located at `plugins/NoMoreCreepers/config.yml`. Option
 
 **Type:** boolean
 **Default:** `false`
-**Description:** Enables or disables debug mode for the plugin.
+**Description:** Reserved for debug output. The option is stored in the config file, can be changed with `/nmc config set`, and is listed by `/nmc config show`, but no plugin behaviour reads it — setting it to `true` currently has no effect.
 
 **Example:**
 

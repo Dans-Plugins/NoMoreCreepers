@@ -47,18 +47,21 @@ Issues are grouped into [milestones](https://github.com/Dans-Plugins/NoMoreCreep
 8. Open a pull request against `main`, link the related issue with `#<number>`.
 9. Address review feedback.
 
-### Language Files
+### User-Facing Strings
 
-Update user-facing strings in the appropriate configuration files (for example, `src/main/resources/plugin.yml`).
+User-facing strings are hard-coded in the command and service classes under `src/main/java/dansplugins/nomorecreepers/` — for example, the command list in `HelpCommand` and the config messages in `ConfigService`. `src/main/resources/plugin.yml` declares only plugin metadata, commands, and permission nodes.
+
+When a command's syntax or a permission node changes, `COMMANDS.md` and `USER_GUIDE.md` must be updated to match. When a config option is added, changed or removed, `CONFIG.md` must be updated to match.
 
 ## Testing
 
-Run the tests with:
+There is no automated test suite. Changes are verified by building the plugin and exercising them on a server:
 
-Linux: `mvn clean test`
-Windows: `mvn clean test`
+1. Build: `mvn clean package`
+2. Place the JAR from `target/` into a local Spigot or Paper server's `plugins` folder.
+3. Start the server, confirm the plugin loads, and confirm the changed behaviour works as intended.
 
-For manual testing, build the plugin with `mvn clean package` and place the JAR from `target/` into a local Spigot server's `plugins` folder.
+The [Build](.github/workflows/build.yml) workflow runs `mvn clean package` on every pull request. A green run means the project compiles; it does not mean the change was tested.
 
 ## Questions
 
