@@ -36,29 +36,24 @@ Please fill out a bug report [here](https://github.com/Dans-Plugins/NoMoreCreepe
 
 ## Testing
 
-### Unit Tests
+There is no automated test suite. The [Build](.github/workflows/build.yml) workflow runs `mvn clean package` on every push and pull request, which confirms that the plugin compiles and that the shaded JAR is produced. It does not confirm that the plugin behaves correctly.
 
-Linux:
-
-    mvn clean test
-
-Windows:
-
-    mvn clean test
-
-If you see `BUILD SUCCESS`, the tests have passed.
+Behaviour is verified by hand on a server, as described under [Development](#development).
 
 ## Development
 
-### Test Server with Plugin Hot-Reloading
-
-A Docker-based test server can be used for development.
+### Manual Validation on a Test Server
 
 #### Setup
 
 1. Build the plugin: `mvn clean package`
-2. Copy the resulting JAR from `target/` into your test server's `plugins` folder.
+2. Copy the resulting JAR from `target/` into a Spigot or Paper server's `plugins` folder.
 3. Start the server and verify the plugin loads.
+4. Verify the changed behaviour. For a change to spawn handling, that means confirming that creepers stop spawning while `allowSpawning` is `false` and spawn normally once it is set to `true`.
+
+### Dev Container
+
+A [VS Code dev container](.devcontainer/devcontainer.json) providing Java 8 and Maven is included. It builds the plugin; it does not run a Minecraft server.
 
 ## Authors and Acknowledgement
 

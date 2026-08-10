@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - A `Dev Release` workflow, which republishes a rolling `dev` prerelease of `main` on every non-documentation push. This is what Dan's Plugin Manager's experimental channel installs from: `/dpm get nomorecreepers --experimental` reads `releases/tags/dev`, so without it there is nothing for that command to download. The prerelease is unreleased, unreviewed code and is marked as such.
 
+### Fixed
+
+- Development documentation no longer describes tooling this repository does not have. `README.md` and `CONTRIBUTING.md` told contributors to verify changes with `mvn clean test` and to read `BUILD SUCCESS` as "the tests have passed", although no test sources exist; `README.md` also offered a Docker-based test server with plugin hot-reloading, where the only container in the repository is a VS Code dev container with no Minecraft server in it. Both files now state that there is no automated test suite, describe what the `Build` workflow actually checks, and give the manual server validation steps. `CONTRIBUTING.md` additionally pointed contributors at `plugin.yml` for user-facing strings, which live in the command and service classes.
+- `CONFIG.md` no longer describes `debugMode` as enabling debug mode. The option is stored, settable and displayed, but no code path reads it, so setting it has no effect.
+
 ## [2.0.0-SNAPSHOT-8-8-2026] – 2026-08-08
 
 ### Changed
