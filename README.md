@@ -36,15 +36,13 @@ Please fill out a bug report [here](https://github.com/Dans-Plugins/NoMoreCreepe
 
 ## Testing
 
-There is no automated test suite. The [Build](.github/workflows/build.yml) workflow runs `mvn clean package` on every push and pull request, which confirms that the plugin compiles and that the shaded JAR is produced. It does not confirm that the plugin behaves correctly.
+There is no automated test suite. The [Build](.github/workflows/build.yml) workflow runs `mvn clean package` on pushes to `main` and on every pull request, which confirms that the plugin compiles and that the shaded JAR is produced. It does not confirm that the plugin behaves correctly.
 
 Behaviour is verified by hand on a server, as described under [Development](#development).
 
 ## Development
 
 ### Manual Validation on a Test Server
-
-#### Setup
 
 1. Build the plugin: `mvn clean package`
 2. Copy the resulting JAR from `target/` into a Spigot or Paper server's `plugins` folder.

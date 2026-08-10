@@ -51,7 +51,7 @@ Issues are grouped into [milestones](https://github.com/Dans-Plugins/NoMoreCreep
 
 User-facing strings are hard-coded in the command and service classes under `src/main/java/dansplugins/nomorecreepers/` — for example, the command list in `HelpCommand` and the config messages in `ConfigService`. `src/main/resources/plugin.yml` declares only plugin metadata, commands, and permission nodes.
 
-When a command's syntax or a permission node changes, `COMMANDS.md`, `USER_GUIDE.md`, and `CONFIG.md` must be updated to match.
+When a command's syntax or a permission node changes, `COMMANDS.md` and `USER_GUIDE.md` must be updated to match. When a config option is added, changed or removed, `CONFIG.md` must be updated to match.
 
 ## Testing
 
