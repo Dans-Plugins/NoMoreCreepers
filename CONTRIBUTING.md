@@ -41,7 +41,7 @@ Issues are grouped into [milestones](https://github.com/Dans-Plugins/NoMoreCreep
 2. Switch to `main`: `git checkout main`
 3. Create a branch: `git checkout -b <branch-name>`
 4. Make your changes.
-5. Test your changes.
+5. Test your changes: `mvn test`, plus the manual server validation below for anything the tests cannot reach.
 6. Commit: `git commit -m "Description of changes"`
 7. Push: `git push origin <branch-name>`
 8. Open a pull request against `main`, link the related issue with `#<number>`.
@@ -55,13 +55,17 @@ When a command's syntax or a permission node changes, `COMMANDS.md` and `USER_GU
 
 ## Testing
 
-There is no automated test suite. Changes are verified by building the plugin and exercising them on a server:
+Run the unit tests with `mvn test`. They live under `src/test/java`, mirroring the package layout of `src/main/java`, and are written with JUnit 5 and Mockito. Collaborators from the Bukkit API are mocked; no test may start a server, touch the network, or read or write a real config file.
+
+A change to behaviour that can be exercised without a server should come with a test. Because the plugin's failure modes are silent — an inverted spawn check either lets creepers through or blocks spawns that should be permitted, with nothing in the log either way — the spawn listener in particular should keep its coverage.
+
+Behaviour that needs the real Bukkit runtime is still verified by hand:
 
 1. Build: `mvn clean package`
 2. Place the JAR from `target/` into a local Spigot or Paper server's `plugins` folder.
 3. Start the server, confirm the plugin loads, and confirm the changed behaviour works as intended.
 
-The [Build](.github/workflows/build.yml) workflow runs `mvn clean package` on every pull request. A green run means the project compiles; it does not mean the change was tested.
+The [Build](.github/workflows/build.yml) workflow runs `mvn clean package` on every pull request, which compiles the project and runs the unit tests. A green run does not cover anything on the manual list above.
 
 ## Questions
 
