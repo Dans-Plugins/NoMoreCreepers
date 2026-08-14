@@ -84,6 +84,7 @@ public class ConfigServiceTest {
 
         configService.setConfigOption("ALLOWSPAWNING", "true", sender);
 
+        assertFalse(config.isSet("ALLOWSPAWNING"));
         assertFalse(config.getBoolean("allowSpawning"));
         assertFalse(configService.hasBeenAltered());
         verify(sender).sendMessage(ChatColor.RED + "That config option wasn't found.");
