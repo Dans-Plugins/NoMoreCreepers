@@ -36,9 +36,11 @@ Please fill out a bug report [here](https://github.com/Dans-Plugins/NoMoreCreepe
 
 ## Testing
 
-There is no automated test suite. The [Build](.github/workflows/build.yml) workflow runs `mvn clean package` on pushes to `main` and on every pull request, which confirms that the plugin compiles and that the shaded JAR is produced. It does not confirm that the plugin behaves correctly.
+Unit tests live under `src/test/java` and run with `mvn test`. They cover the spawn listener, the config service and the commands, using JUnit 5 with Mockito standing in for the Bukkit types those classes talk to.
 
-Behaviour is verified by hand on a server, as described under [Development](#development).
+The [Build](.github/workflows/build.yml) workflow runs `mvn clean package` on pushes to `main` and on every pull request, which runs those tests and confirms that the shaded JAR is produced.
+
+The tests exercise the classes in isolation; they do not start a server, so anything that depends on the real Bukkit runtime — plugin startup, listener registration, config file reading and writing — is still verified by hand on a server, as described under [Development](#development).
 
 ## Development
 

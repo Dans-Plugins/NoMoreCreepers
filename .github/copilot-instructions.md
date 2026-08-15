@@ -19,6 +19,7 @@ making any changes.
   - `services/` – Service classes (`ConfigService`)
   - `bstats/` – bStats metrics integration
 - `src/main/resources/` – `plugin.yml`
+- `src/test/java/dansplugins/nomorecreepers/` – JUnit 5 tests, mirroring the main package layout
 
 ## Coding Conventions
 
