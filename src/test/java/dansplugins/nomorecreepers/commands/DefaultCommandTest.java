@@ -30,6 +30,11 @@ public class DefaultCommandTest {
     }
 
     @Test
+    public void noPermissionNodeIsDeclared() {
+        assertTrue(new DefaultCommand(noMoreCreepers).getPermissions().isEmpty());
+    }
+
+    @Test
     public void argumentsAreIgnored() {
         when(noMoreCreepers.getVersion()).thenReturn("v2.0.0");
 

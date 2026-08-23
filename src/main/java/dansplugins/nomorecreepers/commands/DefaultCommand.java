@@ -11,8 +11,12 @@ import java.util.Arrays;
 public class DefaultCommand extends AbstractPluginCommand {
     private final NoMoreCreepers noMoreCreepers;
 
+    /**
+     * A bare {@code /nmc} is unrestricted, so no permission node is declared. Anything listed here
+     * would also have to be declared in {@code plugin.yml} and documented in {@code USER_GUIDE.md}.
+     */
     public DefaultCommand(NoMoreCreepers noMoreCreepers) {
-        super(new ArrayList<>(Arrays.asList("default")), new ArrayList<>(Arrays.asList("nmc.default")));
+        super(new ArrayList<>(Arrays.asList("default")), new ArrayList<>());
         this.noMoreCreepers = noMoreCreepers;
     }
 
