@@ -5,6 +5,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -27,6 +30,11 @@ public class DefaultCommandTest {
         verify(sender).sendMessage(ChatColor.AQUA + "Developed by: Daniel Stephenson");
         verify(sender).sendMessage(ChatColor.AQUA
                 + "Wiki: https://github.com/Dans-Plugins/NoMoreCreepers/wiki");
+    }
+
+    @Test
+    public void noPermissionNodeIsDeclared() {
+        assertEquals(Collections.emptyList(), new DefaultCommand(noMoreCreepers).getPermissions());
     }
 
     @Test

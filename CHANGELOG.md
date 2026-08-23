@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
+- `DefaultCommand` no longer declares an `nmc.default` permission node. The node was undeclared in `plugin.yml`, absent from the `USER_GUIDE.md` permissions table and never checked — a bare `/nmc` is dispatched straight to `DefaultCommand.execute` without going through `CommandService`, so the declaration only described a restriction that did not exist. `/nmc` stays unrestricted, as `COMMANDS.md` already documents, and there is no longer a stray node waiting to silently gate the command should it ever be routed through the permission check.
 - The `Dev Release` workflow now retries publishing the `dev` prerelease before giving up. The release and its tag have to be deleted and recreated for the tag to move to the new commit, and a transient API failure inside that window previously left the repository with no `dev` release at all until the workflow was re-run by hand. Each attempt now starts from a clean slate, and an exhausted retry fails loudly.
 
 ### Added
