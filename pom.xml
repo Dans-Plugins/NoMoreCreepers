@@ -44,6 +44,25 @@
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <!-- ponder is published as an uber jar that bundles JUnit 4 and Hamcrest
+                                 inside its own artifact, so the <exclusions> on the dependency below
+                                 cannot reach them. Filtering them out here keeps a test framework the
+                                 plugin never calls off the server classpath. preponderous/ponder/tests
+                                 is ponder's own test class, and is the only kept class that referenced
+                                 JUnit; the two license files cover only the removed libraries. -->
+                            <filters>
+                                <filter>
+                                    <artifact>com.github.Preponderous-Software:ponder</artifact>
+                                    <excludes>
+                                        <exclude>org/junit/**</exclude>
+                                        <exclude>junit/**</exclude>
+                                        <exclude>org/hamcrest/**</exclude>
+                                        <exclude>preponderous/ponder/tests/**</exclude>
+                                        <exclude>LICENSE.txt</exclude>
+                                        <exclude>LICENSE-junit.txt</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>
@@ -84,6 +103,15 @@
             <artifactId>ponder</artifactId>
             <version>1.1</version>
             <scope>compile</scope>
+            <!-- ponder declares junit at compile scope, which puts a second copy of the same
+                 classes it already bundles onto the classpath. Excluding it removes the shade
+                 plugin's overlapping-class warning; the bundled copy is handled by the filter above. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- Test dependencies must stay on their last Java 8 compatible releases,
              since the project targets Java 8 and the Build workflow runs on JDK 8. -->
