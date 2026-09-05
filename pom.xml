@@ -48,8 +48,12 @@
                                  inside its own artifact, so the <exclusions> on the dependency below
                                  cannot reach them. Filtering them out here keeps a test framework the
                                  plugin never calls off the server classpath. preponderous/ponder/tests
-                                 is ponder's own test class, and is the only kept class that referenced
-                                 JUnit; the two license files cover only the removed libraries. -->
+                                 holds ponder's own test class, which is the only class this filter
+                                 would otherwise have kept that references JUnit; the two license
+                                 files cover only the removed libraries. Note that this filter is
+                                 pinned to ponder's coordinates: should ponder ever stop shipping as
+                                 an uber jar, or change coordinates, it silently stops applying, so
+                                 re-check the JAR's entry list after a ponder version bump. -->
                             <filters>
                                 <filter>
                                     <artifact>com.github.Preponderous-Software:ponder</artifact>
@@ -104,8 +108,10 @@
             <version>1.1</version>
             <scope>compile</scope>
             <!-- ponder declares junit at compile scope, which puts a second copy of the same
-                 classes it already bundles onto the classpath. Excluding it removes the shade
-                 plugin's overlapping-class warning; the bundled copy is handled by the filter above. -->
+                 classes it already bundles onto the classpath. Excluding it settles the shade
+                 plugin's overlapping-class warning for JUnit and Hamcrest, though the warning
+                 still fires for the IntelliJ annotations, which are duplicated the same way.
+                 The copy bundled inside ponder is handled by the filter above. -->
             <exclusions>
                 <exclusion>
                     <groupId>junit</groupId>
