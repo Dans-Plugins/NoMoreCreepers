@@ -5,6 +5,10 @@ package dansplugins.nomorecreepers.services;
     - saveMissingConfigDefaultsIfNotPresent
     - setConfigOption()
     - sendConfigList()
+
+    The usage-reporting options are the exception: they are shipped in the jar's
+    config.yml and read through the bundled defaults (see the getters at the
+    bottom), and are edited in the file rather than with /nmc config set.
  */
 
 import dansplugins.nomorecreepers.NoMoreCreepers;
@@ -16,6 +20,11 @@ import org.bukkit.configuration.file.FileConfiguration;
  * @author Daniel McCoy Stephenson
  */
 public class ConfigService {
+    private static final String USAGE_REPORTING_ENABLED_KEY = "usage-reporting.enabled";
+    private static final String USAGE_REPORTING_ENDPOINT_KEY = "usage-reporting.endpoint";
+    private static final String USAGE_REPORTING_KEY_KEY = "usage-reporting.key";
+    private static final String DEFAULT_USAGE_REPORTING_ENDPOINT = "https://trace.danielstephenson.dev";
+
     private final NoMoreCreepers noMoreCreepers;
 
     private boolean altered = false;
@@ -71,6 +80,31 @@ public class ConfigService {
 
     public boolean hasBeenAltered() {
         return altered;
+    }
+
+    // The one-argument getters, deliberately. The usage-reporting block lives in
+    // the jar's config.yml, which is only ever copied to disk by the defaults
+    // pass above (on a fresh install or a version mismatch), so a server
+    // upgraded from a version before usage reporting has no usage-reporting
+    // block on disk. Bukkit registers the jar's config.yml as the defaults for
+    // that file, and the one-argument getters fall through to them -- but the
+    // two-argument getters return their explicit fallback instead, which for
+    // the key would be "" and would turn reporting off on every existing
+    // installation. Verified against YamlConfiguration, not assumed.
+
+    public boolean isUsageReportingEnabled() {
+        return getBoolean(USAGE_REPORTING_ENABLED_KEY);
+    }
+
+    public String getUsageReportingEndpoint() {
+        String endpoint = getString(USAGE_REPORTING_ENDPOINT_KEY);
+        return endpoint != null ? endpoint : DEFAULT_USAGE_REPORTING_ENDPOINT;
+    }
+
+    /** Empty when no key is configured or bundled, which the client treats as "off". */
+    public String getUsageReportingKey() {
+        String key = getString(USAGE_REPORTING_KEY_KEY);
+        return key != null ? key : "";
     }
 
     public FileConfiguration getConfig() {

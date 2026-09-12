@@ -31,3 +31,42 @@ debugMode: false
 ```yaml
 allowSpawning: false
 ```
+
+## usage-reporting.enabled
+
+**Type:** boolean
+**Default:** `true`
+**Description:** Whether the plugin reports usage events (see [Usage reporting](#usage-reporting) below). Set to `false` to turn it off. This option is edited in the file and takes effect on the next server start; it is not settable with `/nmc config set`.
+
+**Example:**
+
+```yaml
+usage-reporting:
+  enabled: false
+```
+
+## usage-reporting.endpoint
+
+**Type:** string
+**Default:** `https://trace.danielstephenson.dev`
+**Description:** The trace server events are sent to.
+
+## usage-reporting.key
+
+**Type:** string
+**Default:** the plugin's key
+**Description:** Identifies this plugin to the trace server so reports are attributed to it. Not a secret: it ships in the default config and can only report as NoMoreCreepers. Empty means reporting is off regardless of `usage-reporting.enabled`.
+
+## Usage reporting
+
+When the plugin is enabled, and each time one of its commands is used, a small event is sent to the
+author's [trace](https://github.com/Stephenson-Software/trace-client-java) server so it is known which
+plugins are actually in use. An event carries the plugin's name, the event name (`startup` or
+`command`), and either the plugin version or the command name — nothing about players, the world, or
+the server. Sending happens off the main thread, never delays a tick, and is dropped silently if the
+server cannot be reached. Set `usage-reporting.enabled` to `false` to turn it off.
+
+A server upgraded from a version before usage reporting has no `usage-reporting` block in its
+`config.yml`, and the file is not rewritten. The plugin reads the bundled defaults for any option the
+file lacks, so reporting is active there too until the block is added with `enabled: false`.
+
