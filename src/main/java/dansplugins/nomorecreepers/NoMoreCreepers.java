@@ -6,6 +6,7 @@ import dansplugins.nomorecreepers.commands.DefaultCommand;
 import dansplugins.nomorecreepers.commands.HelpCommand;
 import dansplugins.nomorecreepers.listeners.SpawnListener;
 import dansplugins.nomorecreepers.services.ConfigService;
+import dansplugins.nomorecreepers.trace.TraceClient;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Listener;
@@ -17,11 +18,16 @@ import preponderous.ponder.minecraft.bukkit.tools.EventHandlerRegistry;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class NoMoreCreepers extends PonderBukkitPlugin {
     private final String pluginVersion = "v" + getDescription().getVersion();
     private final CommandService commandService = new CommandService(getPonder());
     private final ConfigService configService = new ConfigService(this);
+
+    // A no-op until the config has been read, so a command arriving before
+    // onEnable() finishes has something safe to report to.
+    private TraceClient trace = TraceClient.disabled();
 
     @Override
     public void onEnable() {
@@ -32,14 +38,24 @@ public class NoMoreCreepers extends PonderBukkitPlugin {
         initializeConfigFile();
         registerEventHandlers();
         initializeCommandService();
+
+        // usage reporting: one event now, one per command; see config.yml
+        trace = TraceClient.builder(configService.getUsageReportingEndpoint(), getName())
+                .key(configService.getUsageReportingKey())
+                .enabled(configService.isUsageReportingEnabled())
+                .logger(getLogger())
+                .build();
+        trace.report("startup", null, Collections.singletonMap("version", getDescription().getVersion()));
     }
 
     @Override
     public void onDisable() {
-
+        trace.close();
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        trace.report("command", null, Collections.singletonMap("name", cmd.getName()));
+
         if (args.length == 0) {
             DefaultCommand defaultCommand = new DefaultCommand(this);
             return defaultCommand.execute(sender);

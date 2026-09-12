@@ -8,9 +8,17 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -206,5 +214,85 @@ public class ConfigServiceTest {
         config.set("someString", "");
 
         assertEquals("", configService.getStringOrDefault("someString", "fallback"));
+    }
+
+    /**
+     * A server upgraded from before usage reporting has no usage-reporting block in its
+     * config.yml, and the file is never rewritten. Bukkit registers the jar's config.yml as
+     * the defaults for that file, and the one-argument getters fall through to them, so the
+     * bundled key must be what such a server reads.
+     */
+    @Test
+    public void usageReportingReadsThroughToTheBundledDefaultsWhenTheFileHasNoBlock() {
+        config.setDefaults(bundledConfig());
+
+        assertFalse(config.isSet("usage-reporting.key"), "the on-disk file must not carry the block for this test to mean anything");
+        assertTrue(configService.isUsageReportingEnabled());
+        assertEquals("https://trace.danielstephenson.dev", configService.getUsageReportingEndpoint());
+        assertEquals("mA-2vVuMd88tSXEtI5hdXomxJK5nQ6-RThSgb8aNfUw", configService.getUsageReportingKey());
+    }
+
+    /**
+     * The two-argument getters return their explicit fallback instead of falling through to
+     * the bundled defaults, which for the key would turn reporting off on every existing
+     * installation. This pins the one-argument calls.
+     */
+    @Test
+    public void usageReportingUsesTheOneArgumentGetters() {
+        FileConfiguration mocked = mock(FileConfiguration.class);
+        when(noMoreCreepers.getConfig()).thenReturn(mocked);
+        when(mocked.getBoolean("usage-reporting.enabled")).thenReturn(true);
+        when(mocked.getString("usage-reporting.endpoint")).thenReturn("https://trace.danielstephenson.dev");
+        when(mocked.getString("usage-reporting.key")).thenReturn("bundled-key");
+
+        assertTrue(configService.isUsageReportingEnabled());
+        assertEquals("https://trace.danielstephenson.dev", configService.getUsageReportingEndpoint());
+        assertEquals("bundled-key", configService.getUsageReportingKey());
+        verify(mocked, never()).getString(eq("usage-reporting.key"), anyString());
+        verify(mocked, never()).getString(eq("usage-reporting.endpoint"), anyString());
+        verify(mocked, never()).getBoolean(eq("usage-reporting.enabled"), anyBoolean());
+    }
+
+    @Test
+    public void usageReportingIsOffWithNoKeyAnywhere() {
+        assertEquals("", configService.getUsageReportingKey(), "no key anywhere must read as off, not as null");
+        assertEquals("https://trace.danielstephenson.dev", configService.getUsageReportingEndpoint());
+        assertFalse(configService.isUsageReportingEnabled());
+    }
+
+    @Test
+    public void usageReportingReadsTheConfiguredValues() {
+        config.setDefaults(bundledConfig());
+        config.set("usage-reporting.enabled", false);
+        config.set("usage-reporting.endpoint", "http://localhost:8080");
+        config.set("usage-reporting.key", "abc");
+
+        assertFalse(configService.isUsageReportingEnabled());
+        assertEquals("http://localhost:8080", configService.getUsageReportingEndpoint());
+        assertEquals("abc", configService.getUsageReportingKey());
+    }
+
+    /**
+     * On a fresh install, and on a version mismatch, the defaults pass saves with
+     * copyDefaults on, which is what puts the bundled block into the file on disk.
+     */
+    @Test
+    public void defaultsPassWritesTheBundledUsageReportingBlock() {
+        config.setDefaults(bundledConfig());
+
+        configService.saveMissingConfigDefaultsIfNotPresent();
+
+        String saved = config.saveToString();
+        assertTrue(saved.contains("usage-reporting:"), saved);
+        assertTrue(saved.contains("key: mA-2vVuMd88tSXEtI5hdXomxJK5nQ6-RThSgb8aNfUw"), saved);
+        assertTrue(saved.contains("endpoint: https://trace.danielstephenson.dev"), saved);
+        assertTrue(saved.contains("enabled: true"), saved);
+    }
+
+    /** The config.yml shipped inside the jar, read from the classpath rather than from disk. */
+    private static YamlConfiguration bundledConfig() {
+        InputStream stream = ConfigServiceTest.class.getResourceAsStream("/config.yml");
+        assertNotNull(stream, "config.yml must be bundled in the jar");
+        return YamlConfiguration.loadConfiguration(new InputStreamReader(stream, StandardCharsets.UTF_8));
     }
 }
