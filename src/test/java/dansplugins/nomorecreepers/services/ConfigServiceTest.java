@@ -153,6 +153,51 @@ public class ConfigServiceTest {
     }
 
     @Test
+    public void usageReportingBlockIsCopiedFromTheBundledDefaultsWhenTheFileHasNone() {
+        // An installation from before usage reporting: version and options on disk, no block.
+        config.set("version", "v2.0.0");
+        config.set("debugMode", false);
+        YamlConfiguration bundled = new YamlConfiguration();
+        bundled.set("usage-reporting.enabled", true);
+        bundled.set("usage-reporting.endpoint", "https://trace.danielstephenson.dev");
+        bundled.set("usage-reporting.key", "bundled-key");
+        config.setDefaults(bundled);
+
+        configService.saveUsageReportingDefaultsIfNotPresent();
+
+        assertTrue(config.isSet("usage-reporting.enabled"));
+        assertEquals("https://trace.danielstephenson.dev", config.get("usage-reporting.endpoint"));
+        assertEquals("bundled-key", config.get("usage-reporting.key"));
+        assertEquals("v2.0.0", config.getString("version"));
+        verify(noMoreCreepers).saveConfig();
+    }
+
+    @Test
+    public void anExistingUsageReportingBlockIsLeftAloneAndNotResaved() {
+        config.set("usage-reporting.enabled", false);
+        config.set("usage-reporting.endpoint", "http://localhost:8080");
+        config.set("usage-reporting.key", "operator-key");
+        YamlConfiguration bundled = new YamlConfiguration();
+        bundled.set("usage-reporting.enabled", true);
+        bundled.set("usage-reporting.key", "bundled-key");
+        config.setDefaults(bundled);
+
+        configService.saveUsageReportingDefaultsIfNotPresent();
+
+        assertFalse(config.getBoolean("usage-reporting.enabled"));
+        assertEquals("operator-key", config.getString("usage-reporting.key"));
+        verify(noMoreCreepers, never()).saveConfig();
+    }
+
+    @Test
+    public void usageReportingBlockIsNotInventedWithoutBundledDefaults() {
+        configService.saveUsageReportingDefaultsIfNotPresent();
+
+        assertFalse(config.isSet("usage-reporting"));
+        verify(noMoreCreepers, never()).saveConfig();
+    }
+
+    @Test
     public void serviceStartsUnaltered() {
         assertFalse(configService.hasBeenAltered());
     }
