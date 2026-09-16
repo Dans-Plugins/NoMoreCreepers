@@ -67,6 +67,12 @@ the server. Sending happens off the main thread, never delays a tick, and is dro
 server cannot be reached. Set `usage-reporting.enabled` to `false` to turn it off.
 
 A server upgraded from a version before usage reporting has no `usage-reporting` block in its
-`config.yml`, and the file is not rewritten. The plugin reads the bundled defaults for any option the
-file lacks, so reporting is active there too until the block is added with `enabled: false`.
+`config.yml`. The plugin reads the bundled defaults for any option the file lacks, so reporting is
+active there too, and on the first start it writes the three options above into the file so the
+switch is visible. The console says on every start whether reporting is on and how to turn it off.
+
+Reporting can also be turned off for every plugin on the server that reports to trace, with
+`enabled: false` in `plugins/trace/config.yml` (created on the first start), or for the whole server
+process with the environment variable `TRACE_USAGE_REPORTING=off` or `DO_NOT_TRACK=1`. Details:
+https://github.com/Stephenson-Software/trace#usage-reporting
 
