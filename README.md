@@ -8,7 +8,7 @@ NoMoreCreepers is a Minecraft plugin that prevents creepers from spawning on you
 
 ### First Time Installation
 
-1. Download the plugin from the [releases page](https://github.com/Dans-Plugins/NoMoreCreepers/releases).
+1. Download the plugin from [SpigotMC](https://www.spigotmc.org/resources/nomorecreepers.97946/) or the [releases page](https://github.com/Dans-Plugins/NoMoreCreepers/releases).
 2. Place the jar in the `plugins` folder of your server.
 3. Restart your server.
 
