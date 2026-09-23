@@ -23,7 +23,7 @@ If you want to temporarily allow creepers to spawn:
 
 ### Viewing Current Configuration
 
-Run `/nmc config show` to display all current configuration values.
+Run `/nmc config show` to display the `version`, `debugMode` and `allowSpawning` values. The `usage-reporting` options are not shown by the command; read them in `plugins/NoMoreCreepers/config.yml`.
 
 ### Viewing Plugin Information
 
