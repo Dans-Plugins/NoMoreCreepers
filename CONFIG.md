@@ -36,7 +36,7 @@ allowSpawning: false
 
 **Type:** boolean
 **Default:** `true`
-**Description:** Whether the plugin reports usage events (see [Usage reporting](#usage-reporting) below). Set to `false` to turn it off. This option is edited in the file and takes effect on the next server start; it is not settable with `/nmc config set`.
+**Description:** Whether the plugin reports usage events (see [Usage reporting](#usage-reporting) below). Set to `false` to turn it off. This option is edited in the file and takes effect on the next server start. `/nmc config set` refuses it, along with the other `usage-reporting` options.
 
 **Example:**
 

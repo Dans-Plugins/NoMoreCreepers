@@ -120,6 +120,40 @@ public class ConfigServiceTest {
         verify(noMoreCreepers, never()).saveConfig();
     }
 
+    /**
+     * Stored as the string "false", the option would be ignored by getBoolean in favour of
+     * the bundled default, so the command would report success and leave reporting on.
+     */
+    @Test
+    public void usageReportingEnabledCannotBeSet() {
+        config.setDefaults(bundledConfig());
+        config.set("usage-reporting.enabled", true);
+
+        configService.setConfigOption("usage-reporting.enabled", "false", sender);
+
+        assertEquals(Boolean.TRUE, config.get("usage-reporting.enabled"));
+        assertFalse(configService.hasBeenAltered());
+        verify(sender).sendMessage(ChatColor.RED + "The usage-reporting options are edited in config.yml, not with this command.");
+        verify(noMoreCreepers, never()).saveConfig();
+    }
+
+    @Test
+    public void usageReportingEndpointKeyAndSectionCannotBeSet() {
+        config.set("usage-reporting.enabled", true);
+        config.set("usage-reporting.endpoint", "https://trace.danielstephenson.dev");
+        config.set("usage-reporting.key", "operator-key");
+
+        configService.setConfigOption("usage-reporting.endpoint", "http://example.invalid", sender);
+        configService.setConfigOption("usage-reporting.key", "other-key", sender);
+        configService.setConfigOption("usage-reporting", "off", sender);
+
+        assertEquals("https://trace.danielstephenson.dev", config.getString("usage-reporting.endpoint"));
+        assertEquals("operator-key", config.getString("usage-reporting.key"));
+        assertTrue(config.isConfigurationSection("usage-reporting"));
+        assertFalse(configService.hasBeenAltered());
+        verify(noMoreCreepers, never()).saveConfig();
+    }
+
     @Test
     public void unknownOptionIsRejected() {
         configService.setConfigOption("thisIsNotAnOption", "true", sender);
