@@ -56,6 +56,11 @@ public class ConfigService {
             if (option.equalsIgnoreCase("version")) {
                 sender.sendMessage(ChatColor.RED + "Cannot set version.");
                 return;
+            } else if (isUsageReportingOption(option)) {
+                // Stored through the string branch, "false" would be a String, which
+                // getBoolean ignores in favour of the bundled default of true.
+                sender.sendMessage(ChatColor.RED + "The usage-reporting options are edited in config.yml, not with this command.");
+                return;
             } else if (option.equalsIgnoreCase("debugMode")
                     || option.equalsIgnoreCase("allowSpawning")) {
                 getConfig().set(option, Boolean.parseBoolean(value));
@@ -82,6 +87,10 @@ public class ConfigService {
 
     public boolean hasBeenAltered() {
         return altered;
+    }
+
+    private boolean isUsageReportingOption(String option) {
+        return option.equals(USAGE_REPORTING_SECTION) || option.startsWith(USAGE_REPORTING_SECTION + ".");
     }
 
     /**
