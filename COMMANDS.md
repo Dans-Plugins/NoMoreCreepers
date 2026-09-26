@@ -18,6 +18,12 @@ All commands are available under `/nomorecreepers` or the shorthand `/nmc`.
 
 ## Admin Commands
 
+### /nmc config
+
+**Description:** Lists the `show` and `set` sub-commands. The same list is shown when an unknown sub-command is given.
+**Permission:** `nmc.config`
+**Usage:** `/nmc config`
+
 ### /nmc config show
 
 **Description:** Displays the `version`, `debugMode` and `allowSpawning` values. The `usage-reporting` options are not listed; see them in `config.yml`.

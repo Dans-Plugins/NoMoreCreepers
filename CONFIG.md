@@ -1,12 +1,14 @@
 # Configuration Guide
 
-The configuration file is located at `plugins/NoMoreCreepers/config.yml`. Options can also be changed in-game using the `/nmc config set` command.
+The configuration file is located at `plugins/NoMoreCreepers/config.yml`. `debugMode` and `allowSpawning` can also be changed in-game using the `/nmc config set` command.
+
+The file is read once, when the plugin is enabled, and the plugin has no reload command. A change made with `/nmc config set` takes effect immediately and is saved to the file straight away. A change made by editing the file while the server is running is not picked up until the next start, and is overwritten by the plugin's in-memory copy the next time `/nmc config set` saves.
 
 ## version
 
 **Type:** string
-**Default:** Current plugin version
-**Description:** Tracks the configuration schema version. Used internally to detect version mismatches and apply missing defaults. This value cannot be changed with the config command.
+**Default:** Current plugin version, prefixed with `v` (for example `v1.2.0`)
+**Description:** The plugin version that last wrote the file. It is not a schema version: it is rewritten to the running plugin's version on a first start and whenever it differs from the running version, and in either case any missing `debugMode` or `allowSpawning` option is written with its default at the same time. This value cannot be changed with the config command.
 
 ## debugMode
 
@@ -24,7 +26,7 @@ debugMode: false
 
 **Type:** boolean
 **Default:** `false`
-**Description:** Controls whether creepers are allowed to spawn. When set to `false` (the default), all creeper spawn events are cancelled. Set to `true` to allow creepers to spawn normally.
+**Description:** Controls whether creepers are allowed to spawn. When set to `false` (the default), all creeper spawn events are cancelled. Set to `true` to allow creepers to spawn normally. The option only affects new spawns: creepers already in the world are not removed when it is set back to `false`.
 
 **Example:**
 
