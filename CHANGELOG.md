@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- Usage reporting now honours server-wide tags: a `tags:` block in `plugins/trace/config.yml` is added to every event sent by each plugin on the server that reports this way (the release gates write `ci: "true"` there, so test-server boots are left out of real-installation figures). Nothing changes for a server without a `tags:` block. The vendored trace client is updated from 0.2.0 to 0.3.0.
+
 ### Fixed
 
 - `COMMANDS.md` and `USER_GUIDE.md` no longer say that `/nmc config show` displays all configuration values. It lists `version`, `debugMode` and `allowSpawning` only; the `usage-reporting` options are not shown. `COMMANDS.md` now also states what `/nmc config set` accepts: an option name that already exists in `config.yml`, matched case-sensitively; `version` is refused; `debugMode` and `allowSpawning` are parsed as booleans, where any value other than `true` means `false`.
