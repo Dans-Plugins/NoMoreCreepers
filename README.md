@@ -41,7 +41,7 @@ Please fill out a bug report [here](https://github.com/Dans-Plugins/NoMoreCreepe
 
 Unit tests live under `src/test/java` and run with `mvn test`. They cover the spawn listener, the config service and the commands, using JUnit 5 with Mockito standing in for the Bukkit types those classes talk to.
 
-The [Build](.github/workflows/build.yml) workflow runs `mvn clean package` on pushes to `main` and on every pull request, which runs those tests and confirms that the shaded JAR is produced.
+The [Build](.github/workflows/build.yml) workflow runs `mvn clean package` on pushes to `main` and on every pull request, which runs those tests and confirms that the shaded JAR is produced. It then checks the JAR against every version in [`minecraft-versions.json`](minecraft-versions.json): each Bukkit class, field and method it uses must exist on that version, and its bytecode must fit the Java that version runs on.
 
 The tests exercise the classes in isolation; they do not start a server, so anything that depends on the real Bukkit runtime — plugin startup, listener registration, config file reading and writing — is still verified by hand on a server, as described under [Development](#development).
 
