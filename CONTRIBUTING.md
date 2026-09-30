@@ -65,7 +65,7 @@ Behaviour that needs the real Bukkit runtime is still verified by hand:
 2. Place the JAR from `target/` into a local Spigot or Paper server's `plugins` folder.
 3. Start the server, confirm the plugin loads, and confirm the changed behaviour works as intended.
 
-The [Build](.github/workflows/build.yml) workflow runs `mvn clean package` on every pull request, which compiles the project and runs the unit tests. A green run does not cover anything on the manual list above.
+The [Build](.github/workflows/build.yml) workflow runs `mvn clean package` on every pull request, which compiles the project and runs the unit tests. It then checks that every Bukkit class, field and method the JAR uses exists on each Minecraft version listed in [`minecraft-versions.json`](minecraft-versions.json), and that the JAR's bytecode fits the Java each of those versions runs on. A green run does not cover anything on the manual list above.
 
 ## Questions
 

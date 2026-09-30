@@ -6,9 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- The supported Minecraft versions are declared in `minecraft-versions.json` — currently 1.19.4, 1.21.11 and 26.2 — and listed in the README. After building the JAR, the `Build` workflow checks that every Bukkit class, field and method the plugin uses exists on each of those versions and that its bytecode fits the Java each one runs on, and fails otherwise. Adding a version to the file is enough for the check to cover it.
+
 ### Changed
 
 - Usage reporting now honours server-wide tags: a `tags:` block in `plugins/trace/config.yml` is added to every event sent by each plugin on the server that reports this way (the release gates write `ci: "true"` there, so test-server boots are left out of real-installation figures). Nothing changes for a server without a `tags:` block. The vendored trace client is updated from 0.2.0 to 0.3.0.
+- Every usage-reporting event now carries the plugin version, so a `command` event can be tied to a release as well as a `startup` one. Previously only the `startup` event carried it. Nothing else about what is sent changes. The vendored trace client is updated from 0.3.0 to 0.4.0.
 
 ### Fixed
 
