@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- A Spigot or Paper Minecraft server (1.13 or newer)
+- A Spigot or Paper Minecraft server on one of the [supported Minecraft versions](README.md#supported-minecraft-versions). Other versions from 1.19.4 onwards are expected to work but are not tested.
 - Server operator access
 
 ## First Steps
