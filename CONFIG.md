@@ -78,5 +78,5 @@ switch is visible. The console says on every start whether reporting is on and h
 Reporting can also be turned off for every plugin on the server that reports to trace, with
 `enabled: false` in `plugins/trace/config.yml` (created on the first start), or for the whole server
 process with the environment variable `TRACE_USAGE_REPORTING=off` or `DO_NOT_TRACK=1`. Details:
-https://github.com/Stephenson-Software/trace#usage-reporting
+https://danielstephenson.dev/usage-reporting
 

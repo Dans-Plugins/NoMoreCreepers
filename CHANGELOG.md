@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- The usage-reporting "Details" link (startup notice, `config.yml` and the docs) now points at https://danielstephenson.dev/usage-reporting, a public page; the previous link led to a private repository and returned 404 for everyone. The vendored trace client is now 0.6.1, which carries the same link in the `plugins/trace/config.yml` header it writes. Details: https://github.com/Stephenson-Software/trace-client-java/releases/tag/0.6.1.
+
 ### Added
 
 - The supported Minecraft versions are declared in `minecraft-versions.json` — currently 1.19.4, 1.21.11 and 26.2 — and listed in the README. After building the JAR, the `Build` workflow checks that every Bukkit class, field and method the plugin uses exists on each of those versions and that its bytecode fits the Java each one runs on, and fails otherwise. Adding a version to the file is enough for the check to cover it.
