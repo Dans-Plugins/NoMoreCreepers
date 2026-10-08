@@ -6,16 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Changed
-
-- The usage-reporting "Details" link (startup notice, `config.yml` and the docs) now points at https://danielstephenson.dev/usage-reporting, a public page; the previous link led to a private repository and returned 404 for everyone. The vendored trace client is now 0.6.1, which carries the same link in the `plugins/trace/config.yml` header it writes. Details: https://github.com/Stephenson-Software/trace-client-java/releases/tag/0.6.1.
+## [1.3.0] – 2026-10-06
 
 ### Added
 
-- The supported Minecraft versions are declared in `minecraft-versions.json` — currently 1.19.4, 1.21.11 and 26.2 — and listed in the README. After building the JAR, the `Build` workflow checks that every Bukkit class, field and method the plugin uses exists on each of those versions and that its bytecode fits the Java each one runs on, and fails otherwise. Adding a version to the file is enough for the check to cover it.
+- The supported Minecraft versions are declared in `minecraft-versions.json` — 1.19.4, 1.21.11, 26.2 and 26.3 — and listed in the README. After building the JAR, the `Build` workflow checks that every Bukkit class, field and method the plugin uses exists on each of those versions and that its bytecode fits the Java each one runs on, and fails otherwise. Adding a version to the file is enough for the check to cover it.
 
 ### Changed
 
+- While usage reporting is on, each event now carries a random server ID, kept on the `server-id` line of `plugins/trace/config.yml` and written there the first time the plugin starts with reporting on, so servers can be counted rather than events. The ID identifies no person, account or IP address; deleting the line gets a new one. Existing text in that file is left as it is, and the ID is appended with a comment explaining it. While reporting is off, no ID is created, written or sent. The startup notice and the bundled `config.yml` comment mention the server ID.
+- The usage-reporting "Details" link (startup notice, `config.yml` and the docs) now points at https://danielstephenson.dev/usage-reporting, a public page; the previous link led to a private repository and returned 404 for everyone. The vendored trace client is now 0.6.1, which carries the same link in the `plugins/trace/config.yml` header it writes. Details: https://github.com/Stephenson-Software/trace-client-java/releases/tag/0.6.1.
 - Usage reporting now honours server-wide tags: a `tags:` block in `plugins/trace/config.yml` is added to every event sent by each plugin on the server that reports this way (the release gates write `ci: "true"` there, so test-server boots are left out of real-installation figures). Nothing changes for a server without a `tags:` block. The vendored trace client is updated from 0.2.0 to 0.3.0.
 - Every usage-reporting event now carries the plugin version, so a `command` event can be tied to a release as well as a `startup` one. Previously only the `startup` event carried it. Nothing else about what is sent changes. The vendored trace client is updated from 0.3.0 to 0.4.0.
 
