@@ -53,7 +53,14 @@
                                  files cover only the removed libraries. Note that this filter is
                                  pinned to ponder's coordinates: should ponder ever stop shipping as
                                  an uber jar, or change coordinates, it silently stops applying, so
-                                 re-check the JAR's entry list after a ponder version bump. -->
+                                 re-check the JAR's entry list after a ponder version bump.
+                                 ponder bundles the JetBrains/IntelliJ annotations the same way, with
+                                 their module descriptor and Kotlin module file. The ponder classes the
+                                 plugin keeps reference only @NotNull and @Nullable, both CLASS
+                                 retention and recorded in RuntimeInvisible attributes, which the JVM
+                                 does not resolve when it loads a class, so the plugin runs without
+                                 them. The manifest is not Multi-Release, so the versions/9 module
+                                 descriptor was never read either. -->
                             <filters>
                                 <filter>
                                     <artifact>com.github.Preponderous-Software:ponder</artifact>
@@ -64,6 +71,10 @@
                                         <exclude>preponderous/ponder/tests/**</exclude>
                                         <exclude>LICENSE.txt</exclude>
                                         <exclude>LICENSE-junit.txt</exclude>
+                                        <exclude>org/jetbrains/**</exclude>
+                                        <exclude>org/intellij/**</exclude>
+                                        <exclude>META-INF/annotations.kotlin_module</exclude>
+                                        <exclude>META-INF/versions/9/module-info.class</exclude>
                                     </excludes>
                                 </filter>
                             </filters>
@@ -107,15 +118,18 @@
             <artifactId>ponder</artifactId>
             <version>1.1</version>
             <scope>compile</scope>
-            <!-- ponder declares junit at compile scope, which puts a second copy of the same
-                 classes it already bundles onto the classpath. Excluding it settles the shade
-                 plugin's overlapping-class warning for JUnit and Hamcrest, though the warning
-                 still fires for the IntelliJ annotations, which are duplicated the same way.
-                 The copy bundled inside ponder is handled by the filter above. -->
+            <!-- ponder declares junit and org.jetbrains:annotations at compile scope, which puts
+                 a second copy of classes it already bundles onto the classpath. Excluding both
+                 settles the shade plugin's overlapping-class warning. The copies bundled inside
+                 ponder are handled by the filter above. -->
             <exclusions>
                 <exclusion>
                     <groupId>junit</groupId>
                     <artifactId>junit</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jetbrains</groupId>
+                    <artifactId>annotations</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
