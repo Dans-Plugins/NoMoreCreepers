@@ -120,7 +120,7 @@
             <scope>compile</scope>
             <!-- ponder declares junit and org.jetbrains:annotations at compile scope, which puts
                  a second copy of classes it already bundles onto the classpath. Excluding both
-                 settles the shade plugin's overlapping-class warning. The copies bundled inside
+                 leaves the shade plugin with no overlapping classes. The copies bundled inside
                  ponder are handled by the filter above. -->
             <exclusions>
                 <exclusion>
