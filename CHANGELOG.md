@@ -6,9 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.3.1] – 2026-10-18
+
 ### Fixed
 
-- The shaded plugin JAR no longer ships the JetBrains/IntelliJ annotations. `ponder` bundles them inside its own artifact and also declares `org.jetbrains:annotations` at compile scope, so two copies reached the shade plugin, the same way JUnit did before 1.2.0. The existing shade filter on ponder now strips `org/jetbrains/**`, `org/intellij/**`, the annotations' `META-INF/annotations.kotlin_module` and their `META-INF/versions/9/module-info.class`, and an exclusion drops the duplicate transitive dependency. The JAR falls from 165 entries to 95, keeping every `preponderous` and `dansplugins` class, and the shade plugin no longer reports overlapping classes (it still reports the overlapping `META-INF/MANIFEST.MF`, which every shaded JAR has). The five ponder classes that carry the annotations use only `@NotNull` and `@Nullable`, which have `CLASS` retention and are not resolved when a class is loaded; every class in the new JAR was loaded and inspected by reflection without the annotations on the classpath, but the plugin has not yet been started on a real server with this JAR.
+- The shaded plugin JAR no longer ships the JetBrains/IntelliJ annotations. `ponder` bundles them inside its own artifact and also declares `org.jetbrains:annotations` at compile scope, so two copies reached the shade plugin, the same way JUnit did before 1.2.0. The existing shade filter on ponder now strips `org/jetbrains/**`, `org/intellij/**`, the annotations' `META-INF/annotations.kotlin_module` and their `META-INF/versions/9/module-info.class`, and an exclusion drops the duplicate transitive dependency. The JAR falls from 165 entries to 95, keeping every `preponderous` and `dansplugins` class, and the shade plugin no longer reports overlapping classes (it still reports the overlapping `META-INF/MANIFEST.MF`, which every shaded JAR has). The five ponder classes that carry the annotations use only `@NotNull` and `@Nullable`, which have `CLASS` retention and are not resolved when a class is loaded; every class in the new JAR was loaded and inspected by reflection without the annotations on the classpath. The plugin had not been started on a real server with this JAR when the change was made; 1.3.1 then went through the real-server boot that every stable release gets before it is published (see [Supported Minecraft Versions](README.md#supported-minecraft-versions)).
 
 ## [1.3.0] – 2026-10-06
 
