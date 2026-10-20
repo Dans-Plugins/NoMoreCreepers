@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Unit tests for `NoMoreCreepers.isVersionMismatched`, the check that decides on startup whether an existing `config.yml` gets the missing-defaults pass. They pin that a different version is a mismatch, and that a version differing only in case, a file with no `version` line, or a missing plugin version is not. `README.md`'s Testing section lists the check among what the tests cover.
+
 ### Fixed
 
 - `CONTRIBUTING.md` no longer says that no test may touch the network or write a config file. The vendored trace client's tests do both, against an HTTP server on a loopback port and a `plugins/trace/config.yml` in a temporary directory; the rule now says no test may start a Minecraft server, reach a remote host, or write a config file outside a temporary directory. `README.md`'s Testing section now mentions those tests alongside the listener, config service and command tests.
