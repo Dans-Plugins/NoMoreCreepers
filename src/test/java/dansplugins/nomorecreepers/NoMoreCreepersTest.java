@@ -37,9 +37,8 @@ import static org.mockito.Mockito.when;
  * Characterizes the plugin class's own logic: the version check that decides, on startup,
  * whether an existing config.yml gets the missing-defaults pass; the {@code allowSpawning}
  * lookup the spawn listener relies on; and how {@code onCommand} routes a command and what
- * usage event it reports for it. A false
- * negative in the version check leaves a new option off disk after an upgrade; a false
- * positive rewrites the version on every start.
+ * usage event it reports for it. A false negative in the version check leaves a new option
+ * off disk after an upgrade; a false positive rewrites the version on every start.
  */
 public class NoMoreCreepersTest {
     private final NoMoreCreepers noMoreCreepers = mock(NoMoreCreepers.class);
