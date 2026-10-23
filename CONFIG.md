@@ -8,7 +8,7 @@ The file is read once, when the plugin is enabled, and the plugin has no reload 
 
 **Type:** string
 **Default:** Current plugin version, prefixed with `v` (for example `v1.2.0`)
-**Description:** The plugin version that last wrote the file. It is not a schema version: it is rewritten to the running plugin's version on a first start and whenever it differs from the running version, and in either case any missing `debugMode` or `allowSpawning` option is written with its default at the same time. This value cannot be changed with the config command.
+**Description:** The plugin version that last wrote the file. It is not a schema version: it is rewritten to the running plugin's version on a first start and whenever it differs from the running version, and in either case any missing `debugMode` or `allowSpawning` option is written with its default at the same time. The comparison ignores case, so `V1.2.0` counts as the same version as `v1.2.0`, and a file with no `version` line is not treated as different: neither is rewritten, and neither gets the missing options written. This value cannot be changed with the config command.
 
 ## debugMode
 
