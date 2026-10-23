@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
+- `CONFIG.md` now says when an existing `config.yml` is not counted as written by a different version. The plugin compares the file's `version` with its own ignoring case, and treats a file with no `version` line as matching, so neither gets its `version` rewritten or its missing `debugMode` and `allowSpawning` options written. `CONFIG.md` previously said this happened whenever the value differed.
 - `CONTRIBUTING.md` no longer says that no test may touch the network or write a config file. The vendored trace client's tests do both, against an HTTP server on a loopback port and a `plugins/trace/config.yml` in a temporary directory; the rule now says no test may start a Minecraft server, reach a remote host, or write a config file outside a temporary directory. `README.md`'s Testing section now mentions those tests alongside the listener, config service and command tests.
 
 ## [1.3.1] – 2026-10-18
