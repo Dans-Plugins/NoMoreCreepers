@@ -12,7 +12,7 @@ All commands are available under `/nomorecreepers` or the shorthand `/nmc`.
 
 ### /nmc help
 
-**Description:** Lists all available commands and their descriptions.
+**Description:** Lists the top-level commands — `/nmc`, `/nmc help` and `/nmc config` — with a one-line description of each. The `config` sub-commands are not listed; `/nmc config` lists them. All three entries are shown whatever the sender's permissions.
 **Permission:** `nmc.help`
 **Usage:** `/nmc help`
 
@@ -32,7 +32,7 @@ All commands are available under `/nomorecreepers` or the shorthand `/nmc`.
 
 ### /nmc config set \<option\> \<value\>
 
-**Description:** Updates a configuration option to the specified value. The option name is case-sensitive and must already exist in `config.yml`. `version` cannot be set. `debugMode` and `allowSpawning` are booleans: `true` (in any case) sets `true`, and any other value sets `false`. The `usage-reporting` options, and the `usage-reporting` section itself, are refused; they are edited in `config.yml` (see [CONFIG.md](CONFIG.md)).
+**Description:** Updates a configuration option to the specified value. The option name is case-sensitive and must already exist in `config.yml`. `version` cannot be set. `debugMode` and `allowSpawning` are booleans: `true` (in any case) sets `true`, and any other value sets `false`. The `usage-reporting` options, and the `usage-reporting` section itself, are refused; they are edited in `config.yml` (see [CONFIG.md](CONFIG.md)). Given fewer than two arguments, the command replies with `Usage: /nmc config set (option) (value)` and changes nothing.
 **Permission:** `nmc.config`
 **Usage:** `/nmc config set <option> <value>`
 **Example:** `/nmc config set allowSpawning true`
