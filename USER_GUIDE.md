@@ -17,7 +17,7 @@
 
 If you want to temporarily allow creepers to spawn:
 
-1. Run `/nmc config set allowSpawning true` in-game or from the console.
+1. Run `/nmc config set allowSpawning true` in-game or from the console. The option name is case-sensitive: `allowspawning` is answered with `That config option wasn't found.` and changes nothing.
 2. Creepers will now spawn normally. The change takes effect immediately; no restart is needed.
 3. To block them again, run `/nmc config set allowSpawning false`. Creepers that spawned in the meantime are not removed.
 
