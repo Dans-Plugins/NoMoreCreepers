@@ -94,6 +94,8 @@ Each event also carries a random server ID (the `server-id` line in `plugins/tra
 servers can be counted rather than events. It identifies no person, account or IP address; delete
 the line to get a new one.
 
+Repeats of a command event within 60 seconds are not sent one by one: the first goes out at once, and the rest are sent as one event carrying how many there were. The startup event is never held back.
+
 To turn it off:
 
 - for this plugin only: set `usage-reporting.enabled: false` in `plugins/NoMoreCreepers/config.yml`;
