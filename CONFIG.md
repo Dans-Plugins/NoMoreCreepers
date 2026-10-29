@@ -70,6 +70,12 @@ line gets a new one) — nothing about players or the world. Sending happens off
 tick, and is dropped silently if the
 server cannot be reached. Set `usage-reporting.enabled` to `false` to turn it off.
 
+Repeated `command` events are coalesced. The first is sent at once; identical ones in the next 60
+seconds are only counted, and when that minute ends the count is sent as one more event carrying the
+tag `coalesced` with the count (and the count as its value). A command used without pause therefore
+costs one event a minute, and the plugin cannot flood the trace server. A count still open when the
+plugin is disabled is sent then. The `startup` event is never held back.
+
 A server upgraded from a version before usage reporting has no `usage-reporting` block in its
 `config.yml`. The plugin reads the bundled defaults for any option the file lacks, so reporting is
 active there too, and on the first start it writes the three options above into the file so the
