@@ -8,6 +8,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import preponderous.ponder.minecraft.bukkit.services.CommandService;
@@ -42,7 +43,8 @@ import static org.mockito.Mockito.when;
  */
 public class NoMoreCreepersTest {
     private final NoMoreCreepers noMoreCreepers = mock(NoMoreCreepers.class);
-    private final CommandSender sender = mock(CommandSender.class);
+    // A player, because only commands a player runs report a usage event.
+    private final CommandSender sender = mock(Player.class);
     private final Command command = mock(Command.class);
     private final CommandService commandService = mock(CommandService.class);
     private FileConfiguration config;

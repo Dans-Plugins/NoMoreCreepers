@@ -9,6 +9,7 @@ import dansplugins.nomorecreepers.services.ConfigService;
 import dansplugins.nomorecreepers.trace.TraceClient;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import preponderous.ponder.minecraft.bukkit.abs.AbstractPluginCommand;
 import preponderous.ponder.minecraft.bukkit.abs.PonderBukkitPlugin;
@@ -74,7 +75,10 @@ public class NoMoreCreepers extends PonderBukkitPlugin {
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        trace.report("command", null, Collections.singletonMap("name", cmd.getName()));
+        // Console, command-block and plugin-dispatched commands are not counted.
+        if (sender instanceof Player) {
+            trace.report("command", null, Collections.singletonMap("name", cmd.getName()));
+        }
 
         if (args.length == 0) {
             DefaultCommand defaultCommand = new DefaultCommand(this);
