@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 
 - Repeated usage-reporting events are now coalesced. The first report of an event is sent at once; identical reports in the next 60 seconds are counted and sent as one event tagged `coalesced` with the count, and a count still open when the plugin is disabled is sent then. The `startup` event is never held back. A command dispatched in a loop, for example by another plugin, therefore costs one event a minute instead of one per use. The vendored trace client is updated from 0.6.1 to 0.7.0; its API is unchanged. `README.md` and `CONFIG.md` describe the coalescing. Details: https://github.com/Stephenson-Software/trace-client-java/releases/tag/0.7.0.
+- Usage reporting now counts a `command` event only when a player runs the command; console, command-block and plugin-dispatched commands are no longer reported.
 
 ### Fixed
 
