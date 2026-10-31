@@ -1329,6 +1329,170 @@ class TraceClientTest {
         assertFalse(Files.exists(idFile));
     }
 
+    @Test
+    void report_sendsARepeatedEventOnceThenOneCoalescedCountWhenTheWindowCloses() throws Exception {
+        // Arrange
+        arrived = new CountDownLatch(2);
+        TraceClient client = TraceClient.builder(baseUrl(), "MyPlugin", "1.2.3").key("k")
+                .coalesceWindowMillis(200).build();
+        Map<String, String> tags = Collections.singletonMap("name", "help");
+
+        // Act
+        client.report("command", null, tags);
+        client.report("command", null, tags);
+        client.report("command", null, tags);
+
+        // Assert
+        assertTrue(arrived.await(5, TimeUnit.SECONDS), "the first report and the count should both arrive");
+        assertEquals(2, received.size());
+        assertEquals("{\"application\":\"MyPlugin\",\"name\":\"command\",\"tags\":{\"name\":\"help\",\"version\":\"1.2.3\"}}",
+                received.get(0).body);
+        assertEquals("{\"application\":\"MyPlugin\",\"name\":\"command\",\"value\":2.0,"
+                        + "\"tags\":{\"name\":\"help\",\"version\":\"1.2.3\",\"coalesced\":\"2\"}}",
+                received.get(1).body, "the count stands in for the two repeats, as value and as the coalesced tag");
+        client.close();
+    }
+
+    @Test
+    void report_endsAWindowThatCountedNothing() throws Exception {
+        // Arrange
+        TraceClient client = TraceClient.builder(baseUrl(), "MyPlugin", "1.2.3").key("k")
+                .coalesceWindowMillis(100).build();
+
+        // Act
+        client.report("command");
+        assertEquals(1, client.coalescing());
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+        while (client.coalescing() > 0 && System.nanoTime() < deadline) {
+            Thread.sleep(20);
+        }
+
+        // Assert
+        assertEquals(0, client.coalescing(), "a window with no repeats closes without reopening");
+        client.close();
+        assertEquals(1, received.size(), "no count is sent for a window that counted nothing");
+    }
+
+    @Test
+    void report_neverCoalescesStartup() throws Exception {
+        // Arrange
+        arrived = new CountDownLatch(3);
+        TraceClient client = TraceClient.builder(baseUrl(), "MyPlugin", "1.2.3").key("k").build();
+
+        // Act
+        client.report("startup");
+        client.report("startup");
+        client.report("startup");
+
+        // Assert
+        assertTrue(arrived.await(5, TimeUnit.SECONDS), "every startup is sent at once, inside the default window");
+        assertEquals(0, client.coalescing());
+        client.close();
+        assertEquals(3, received.size());
+        for (Received request : received) {
+            assertFalse(request.body.contains(TraceClient.COALESCED_TAG), request.body);
+        }
+    }
+
+    @Test
+    void close_sendsTheCountStillOpen() throws Exception {
+        // Arrange
+        // The default minute-long window: only close() can send the count.
+        TraceClient client = TraceClient.builder(baseUrl(), "MyPlugin", "1.2.3").key("k").build();
+
+        // Act
+        for (int i = 0; i < 4; i++) {
+            client.report("command");
+        }
+        client.close();
+
+        // Assert
+        assertEquals(2, received.size());
+        assertEquals("{\"application\":\"MyPlugin\",\"name\":\"command\",\"tags\":{\"version\":\"1.2.3\"}}", received.get(0).body);
+        assertEquals("{\"application\":\"MyPlugin\",\"name\":\"command\",\"value\":3.0,"
+                + "\"tags\":{\"version\":\"1.2.3\",\"coalesced\":\"3\"}}", received.get(1).body);
+        assertEquals(0, client.coalescing());
+    }
+
+    @Test
+    void report_sendsNothingAfterClose() throws Exception {
+        // Arrange
+        TraceClient client = TraceClient.builder(baseUrl(), "MyPlugin", "1.2.3").key("k").build();
+        client.close();
+
+        // Act
+        client.report("startup");
+        client.report("command");
+
+        // Assert
+        assertFalse(arrived.await(300, TimeUnit.MILLISECONDS));
+        assertTrue(received.isEmpty());
+    }
+
+    @Test
+    void coalescedCount_keepsTheEventsOwnValue() throws Exception {
+        // Arrange
+        TraceClient client = TraceClient.builder(baseUrl(), "MyPlugin", "1.2.3").key("k").build();
+
+        // Act
+        client.report("command", 2.5, null);
+        client.report("command", 2.5, null);
+        client.report("command", 2.5, null);
+        client.close();
+
+        // Assert
+        assertEquals(2, received.size());
+        assertEquals("{\"application\":\"MyPlugin\",\"name\":\"command\",\"value\":2.5,"
+                + "\"tags\":{\"version\":\"1.2.3\",\"coalesced\":\"2\"}}", received.get(1).body);
+    }
+
+    @Test
+    void report_treatsTagOrderAsTheSameEventAndOtherTagsOrValuesAsDifferentOnes() throws Exception {
+        // Arrange
+        TraceClient client = TraceClient.builder(baseUrl(), "MyPlugin", "1.2.3").key("k").build();
+        Map<String, String> ab = new LinkedHashMap<>();
+        ab.put("a", "1");
+        ab.put("b", "2");
+        Map<String, String> ba = new LinkedHashMap<>();
+        ba.put("b", "2");
+        ba.put("a", "1");
+
+        // Act
+        client.report("command", null, ab);
+        client.report("command", null, ba);
+        client.report("command", null, Collections.singletonMap("a", "other"));
+        client.report("command", 1.0, ab);
+        client.report("command", Double.NaN, ab); // NaN is sent as no value: the same event as ab
+
+        // Assert
+        assertEquals(3, client.coalescing(), "ab and ba are one event; a different tag or a value is another");
+        client.close();
+        assertEquals(4, received.size(), "three first reports and one count");
+        assertTrue(received.get(3).body.contains("\"coalesced\":\"2\""), received.get(3).body);
+    }
+
+    @Test
+    void report_dropsANewEventOnceMaxCoalescedEventsAreBeingCounted() throws Exception {
+        // Arrange
+        TraceClient client = TraceClient.builder(baseUrl(), "MyPlugin", "1.2.3").key("k").build();
+        for (int i = 0; i < TraceClient.MAX_COALESCED_EVENTS; i++) {
+            client.report("event-" + i);
+        }
+        assertEquals(TraceClient.MAX_COALESCED_EVENTS, client.coalescing());
+
+        // Act
+        client.report("one-too-many");
+        client.report("one-too-many");
+
+        // Assert
+        assertEquals(TraceClient.MAX_COALESCED_EVENTS, client.coalescing(), "the bound holds");
+        client.close();
+        for (Received request : received) {
+            assertFalse(request.body.contains("one-too-many"), "dropped, neither sent nor counted");
+        }
+        assertEquals(0, client.coalescing(), "close() ends every window");
+    }
+
     /**
      * Writes {@code content} as the server-wide file, followed by a fixed
      * {@code server-id: test-server} line so the tag tests get a predictable
