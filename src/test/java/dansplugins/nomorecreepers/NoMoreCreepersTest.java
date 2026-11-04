@@ -4,8 +4,10 @@ import com.sun.net.httpserver.HttpServer;
 import dansplugins.nomorecreepers.services.ConfigService;
 import dansplugins.nomorecreepers.trace.TraceClient;
 import org.bukkit.ChatColor;
+import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -188,9 +190,51 @@ public class NoMoreCreepersTest {
     }
 
     /**
+     * Only a command a player runs is counted. Each case runs the non-player command first and
+     * a player's command after it on the same client, so the one event that arrives shows the
+     * client was sending, and that it is the player's.
+     */
+    @Test
+    public void consoleCommandReportsNoUsageEvent() throws Exception {
+        assertOnlyThePlayersCommandIsReported(mock(ConsoleCommandSender.class));
+    }
+
+    @Test
+    public void commandBlockCommandReportsNoUsageEvent() throws Exception {
+        assertOnlyThePlayersCommandIsReported(mock(BlockCommandSender.class));
+    }
+
+    @Test
+    public void nonPlayerCommandIsStillRouted() {
+        CommandSender console = mock(ConsoleCommandSender.class);
+        String[] args = {"config", "show"};
+        when(commandService.interpretAndExecuteCommand(console, "nmc", args)).thenReturn(true);
+
+        assertTrue(noMoreCreepers.onCommand(console, command, "nmc", args));
+
+        verify(commandService).interpretAndExecuteCommand(console, "nmc", args);
+    }
+
+    private void assertOnlyThePlayersCommandIsReported(CommandSender nonPlayer) throws Exception {
+        when(command.getName()).thenReturn("nomorecreepers");
+        Command playerCommand = mock(Command.class);
+        when(playerCommand.getName()).thenReturn("nmc");
+
+        String body = reportedBody(() -> {
+            noMoreCreepers.onCommand(nonPlayer, command, "nmc", new String[]{"config", "show"});
+            noMoreCreepers.onCommand(sender, playerCommand, "nmc", new String[]{"help"});
+        });
+
+        assertEquals("{\"application\":\"NoMoreCreepers\",\"name\":\"command\","
+                + "\"tags\":{\"name\":\"nmc\",\"version\":\"1.3.2\"}}", body);
+    }
+
+    /**
      * Runs {@code action} with an enabled trace client pointed at an HTTP server on a loopback
      * port, and returns the body of the one event it sent. The client's environment is emptied
      * for the duration, so a DO_NOT_TRACK on the machine running the suite cannot disable it.
+     * {@code close()} waits for queued sends, so an extra event would be counted before the
+     * size is checked.
      */
     private String reportedBody(Runnable action) throws Exception {
         List<String> bodies = new CopyOnWriteArrayList<>();
