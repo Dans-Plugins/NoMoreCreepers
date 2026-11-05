@@ -85,7 +85,9 @@ public class NoMoreCreepers extends PonderBukkitPlugin {
             return defaultCommand.execute(sender);
         }
 
-        return commandService.interpretAndExecuteCommand(sender, label, args);
+        // The registered name, not the typed label: the command service ignores any name
+        // plugin.yml does not declare, which includes the namespaced /nomorecreepers:nmc.
+        return commandService.interpretAndExecuteCommand(sender, cmd.getName(), args);
     }
 
     public String getVersion() {

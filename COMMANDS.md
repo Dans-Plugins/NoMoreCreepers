@@ -1,6 +1,8 @@
 # Commands Reference
 
-All commands are available under `/nomorecreepers` or the shorthand `/nmc`.
+All commands are available under `/nomorecreepers` or the shorthand `/nmc`, and under the namespaced `/nomorecreepers:nmc` and `/nomorecreepers:nomorecreepers`, which stay available if another plugin takes the short names.
+
+The sub-command names `help` and `config` are case-sensitive. A name that matches no command, including `/nmc HELP`, is answered with `That command wasn't found.`, whatever the sender's permissions. A sender without a command's permission is answered with `In order to use this command, you need one of the following permission: '[nmc.config]'`, naming the node, and nothing runs. `show` and `set` under `/nmc config` are matched in any case.
 
 ## General Commands
 

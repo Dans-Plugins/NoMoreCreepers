@@ -148,13 +148,13 @@ public class NoMoreCreepersTest {
     }
 
     @Test
-    public void subCommandIsHandedToTheCommandServiceWithItsLabelAndArguments() {
+    public void subCommandIsHandedToTheCommandServiceWithItsRegisteredNameAndArguments() {
         String[] args = {"config", "show"};
-        when(commandService.interpretAndExecuteCommand(sender, "nomorecreepers", args)).thenReturn(true);
+        when(commandService.interpretAndExecuteCommand(sender, "nmc", args)).thenReturn(true);
 
-        assertTrue(noMoreCreepers.onCommand(sender, command, "nomorecreepers", args));
+        assertTrue(noMoreCreepers.onCommand(sender, command, "nomorecreepers:nmc", args));
 
-        verify(commandService).interpretAndExecuteCommand(sender, "nomorecreepers", args);
+        verify(commandService).interpretAndExecuteCommand(sender, "nmc", args);
         verifyNoInteractions(sender);
     }
 
