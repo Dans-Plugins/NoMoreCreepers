@@ -31,6 +31,10 @@ Run `/nmc config show` to display the `version`, `debugMode` and `allowSpawning`
 
 Run `/nmc` with no arguments to see the plugin version, developer, and wiki link.
 
+### When Another Plugin Uses `/nmc`
+
+Every command also runs under `/nomorecreepers`. If that name is taken as well, use `/nomorecreepers:nmc`, for example `/nomorecreepers:nmc config show`. The command list and usage messages still say `/nmc`, whichever name was typed.
+
 ## Permissions
 
 | Permission | Default | Description |

@@ -4,12 +4,18 @@ import dansplugins.nomorecreepers.commands.ConfigCommand;
 import dansplugins.nomorecreepers.commands.HelpCommand;
 import dansplugins.nomorecreepers.services.ConfigService;
 import dansplugins.nomorecreepers.trace.TraceClient;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Server;
 import org.bukkit.command.Command;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.command.PluginCommandYamlParser;
+import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.InvalidDescriptionException;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,12 +28,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -45,6 +53,7 @@ public class CommandRoutingTest {
     private static final String NOT_FOUND_MESSAGE = ChatColor.RED + "That command wasn't found.";
     private static final String HELP_LINE = ChatColor.AQUA + "/nmc help - View a list of helpful commands.";
     private static final String SUB_COMMAND_MESSAGE = ChatColor.RED + "Sub-commands: show, set";
+    private static final String CONFIG_LIST_HEADER = ChatColor.AQUA + "=== Config List ===";
 
     private final NoMoreCreepers noMoreCreepers = mock(NoMoreCreepers.class);
     private final Player player = mock(Player.class);
@@ -130,6 +139,15 @@ public class CommandRoutingTest {
     }
 
     @Test
+    public void bareConfigListsSubCommandsWithNmcConfig() {
+        grant("nmc.config");
+
+        assertFalse(run("nmc", "nmc", "config"));
+
+        verify(player).sendMessage(SUB_COMMAND_MESSAGE);
+    }
+
+    @Test
     public void bareConfigIsRefusedWithoutNmcConfig() {
         grant("nmc.help");
 
@@ -140,13 +158,22 @@ public class CommandRoutingTest {
     }
 
     @Test
+    public void configShowRunsWithNmcConfig() {
+        grant("nmc.config");
+
+        assertTrue(run("nmc", "nmc", "config", "show"));
+
+        verify(player).sendMessage(CONFIG_LIST_HEADER);
+    }
+
+    @Test
     public void configShowIsRefusedWithoutNmcConfig() {
         grant("nmc.help");
 
         assertFalse(run("nmc", "nmc", "config", "show"));
 
         verify(player).sendMessage(permissionMessage("nmc.config"));
-        verify(player, never()).sendMessage(ChatColor.AQUA + "=== Config List ===");
+        verify(player, never()).sendMessage(CONFIG_LIST_HEADER);
     }
 
     /** A player granted only nmc.help must not be able to let creepers back in. */
@@ -185,26 +212,50 @@ public class CommandRoutingTest {
     /**
      * Bukkit keeps the namespaced labels registered, and they are the ones left if other
      * plugins take both short names. The command service ignores them, with no reply at
-     * all, if it is given the label rather than the registered name.
+     * all, if it is given the label rather than the registered name. This goes through
+     * Bukkit's own command map, so the label and name are the ones Bukkit passes. The map
+     * reports true either way, so the reply is what shows the sub-command ran.
      */
     @Test
-    public void namespacedLabelsRunSubCommands() {
+    public void namespacedLabelsRunSubCommandsThroughBukkitsCommandMap() throws Exception {
         grant("nmc.help");
+        PluginDescriptionFile description = declaredCommands();
+        Plugin plugin = mock(Plugin.class);
+        when(plugin.getDescription()).thenReturn(description);
+        when(plugin.isEnabled()).thenReturn(true);
+        List<Command> commands = PluginCommandYamlParser.parse(plugin);
+        for (Command command : commands) {
+            ((PluginCommand) command).setExecutor(noMoreCreepers);
+        }
 
-        assertTrue(run("nmc", "nomorecreepers:nmc", "help"));
-        assertTrue(run("nomorecreepers", "nomorecreepers:nomorecreepers", "help"));
+        // Dispatching looks up the timings setting on the static server.
+        Server server = mock(Server.class, RETURNS_DEEP_STUBS);
+        Field bukkitServer = Bukkit.class.getDeclaredField("server");
+        bukkitServer.setAccessible(true);
+        bukkitServer.set(null, server);
+        try {
+            SimpleCommandMap commandMap = new SimpleCommandMap(server);
+            commandMap.registerAll(description.getName(), commands);
+
+            commandMap.dispatch(player, "nomorecreepers:nmc help");
+            commandMap.dispatch(player, "nomorecreepers:nomorecreepers help");
+        } finally {
+            bukkitServer.set(null, null);
+        }
 
         verify(player, times(2)).sendMessage(HELP_LINE);
     }
 
     @Test
-    public void namespacedLabelStillNeedsThePermission() {
+    public void namespacedLabelsStillNeedThePermission() {
         grant("nmc.help");
 
         assertFalse(run("nmc", "nomorecreepers:nmc", "config", "set", "allowSpawning", "true"));
+        assertFalse(run("nomorecreepers", "nomorecreepers:nomorecreepers", "config", "set", "allowSpawning", "true"));
 
-        verify(player).sendMessage(permissionMessage("nmc.config"));
+        verify(player, times(2)).sendMessage(permissionMessage("nmc.config"));
         assertFalse(noMoreCreepers.isSpawningAllowed());
+        verify(noMoreCreepers, never()).saveConfig();
     }
 
     /** No permission is checked for a name that matches no command. */
