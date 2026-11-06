@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- `CONTRIBUTING.md`'s requirements now list a JDK and Maven, which its build and test steps use. The build targets Java 8 and the `Build` workflow runs on JDK 8.
+- `CONTRIBUTING.md` no longer says issues are grouped into milestones. No issue in this repository has ever had one.
+
+## [1.4.0] – 2026-11-06
+
 ### Added
 
 - Unit tests for `NoMoreCreepers.isVersionMismatched`, the check that decides on startup whether an existing `config.yml` gets the missing-defaults pass. They pin that a different version is a mismatch, and that a version differing only in case, a file with no `version` line, or a missing plugin version is not. `README.md`'s Testing section lists the check among what the tests cover.

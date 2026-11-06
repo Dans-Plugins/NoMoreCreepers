@@ -13,6 +13,8 @@ Thank you for your interest in contributing to NoMoreCreepers! This guide will h
 
 - A GitHub account
 - Git installed on your local machine
+- A JDK (the build targets Java 8, and the Build workflow runs on JDK 8)
+- Maven
 - A Java IDE or text editor
 - A basic understanding of Java
 
@@ -30,10 +32,6 @@ Thank you for your interest in contributing to NoMoreCreepers! This guide will h
 ### Issues
 
 Work items are tracked as [GitHub issues](https://github.com/Dans-Plugins/NoMoreCreepers/issues).
-
-### Milestones
-
-Issues are grouped into [milestones](https://github.com/Dans-Plugins/NoMoreCreepers/milestones) representing upcoming releases.
 
 ## Making Changes
 
