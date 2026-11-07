@@ -3,6 +3,7 @@ package dansplugins.nomorecreepers.services;
 import dansplugins.nomorecreepers.NoMoreCreepers;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.BeforeEach;
@@ -349,6 +350,45 @@ public class ConfigServiceTest {
         assertFalse(configService.isUsageReportingEnabled());
         assertEquals("http://localhost:8080", configService.getUsageReportingEndpoint());
         assertEquals("abc", configService.getUsageReportingKey());
+    }
+
+    /**
+     * The trace client refuses a blank URL by throwing, and an operator who empties the line
+     * means to stop sending, so a blank endpoint reads as off and never as the default server.
+     */
+    @Test
+    public void blankEndpointTurnsUsageReportingOff() {
+        config.setDefaults(bundledConfig());
+        config.set("usage-reporting.enabled", true);
+
+        for (String blank : new String[]{"", "   "}) {
+            config.set("usage-reporting.endpoint", blank);
+
+            assertFalse(configService.isUsageReportingEnabled(), "endpoint '" + blank + "'");
+            assertEquals("https://trace.danielstephenson.dev", configService.getUsageReportingEndpoint());
+        }
+    }
+
+    @Test
+    public void emptyQuotedKeyInTheFileMeansNoKey() throws InvalidConfigurationException {
+        config.setDefaults(bundledConfig());
+        config.loadFromString("usage-reporting:\n  key: \"\"\n");
+
+        assertEquals("", configService.getUsageReportingKey());
+    }
+
+    /**
+     * YAML reads a line with no value as null, which Bukkit treats as not set, so the bundled
+     * value is what comes back. Only an empty string turns reporting off.
+     */
+    @Test
+    public void lineWithNoValueReadsThroughToTheBundledDefault() throws InvalidConfigurationException {
+        config.setDefaults(bundledConfig());
+        config.loadFromString("usage-reporting:\n  enabled:\n  endpoint:\n  key:\n");
+
+        assertTrue(configService.isUsageReportingEnabled());
+        assertEquals("https://trace.danielstephenson.dev", configService.getUsageReportingEndpoint());
+        assertEquals("mA-2vVuMd88tSXEtI5hdXomxJK5nQ6-RThSgb8aNfUw", configService.getUsageReportingKey());
     }
 
     /**

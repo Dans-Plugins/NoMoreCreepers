@@ -51,13 +51,15 @@ usage-reporting:
 
 **Type:** string
 **Default:** `https://trace.danielstephenson.dev`
-**Description:** The trace server events are sent to.
+**Description:** The trace server events are sent to, which the startup notice names. Empty (`endpoint: ""`) means reporting is off regardless of `usage-reporting.enabled`.
 
 ## usage-reporting.key
 
 **Type:** string
 **Default:** the plugin's key
-**Description:** Identifies this plugin to the trace server so reports are attributed to it. Not a secret: it ships in the default config and can only report as NoMoreCreepers. Empty means reporting is off regardless of `usage-reporting.enabled`.
+**Description:** Identifies this plugin to the trace server so reports are attributed to it. Not a secret: it ships in the default config and can only report as NoMoreCreepers. Empty (`key: ""`) means reporting is off regardless of `usage-reporting.enabled`.
+
+A `usage-reporting` line with nothing after the colon, such as `key:`, is not empty: it counts as missing, so the bundled value is used, and for `enabled:`, `endpoint:` and `key:` alike reporting stays on. To turn reporting off, use `enabled: false`.
 
 ## Usage reporting
 

@@ -53,7 +53,7 @@ When a command's syntax or a permission node changes, `COMMANDS.md` and `USER_GU
 
 ## Testing
 
-Run the unit tests with `mvn test`. They live under `src/test/java`, mirroring the package layout of `src/main/java`, and are written with JUnit 5 and Mockito. Collaborators from the Bukkit API are mocked; no test may start a Minecraft server, reach a remote host, or read or write a config file outside a temporary directory. The vendored trace client's tests, and the plugin class's tests of the usage event a command reports, are the only places a test opens a socket: they start an HTTP server on a loopback port to receive the client's events. The trace client's tests also write `plugins/trace/config.yml` under a JUnit `@TempDir`.
+Run the unit tests with `mvn test`. They live under `src/test/java`, mirroring the package layout of `src/main/java`, and are written with JUnit 5 and Mockito. Collaborators from the Bukkit API are mocked; no test may start a Minecraft server, reach a remote host, or read or write a config file outside a temporary directory. The vendored trace client's tests, and the plugin class's tests of usage reporting, are the only places a test opens a socket, always on a loopback port: most start an HTTP server there to receive the client's events, and the startup notice tests point the client at a closed port. Both also write `plugins/trace/config.yml` under a JUnit `@TempDir`.
 
 A change to behaviour that can be exercised without a server should come with a test. Because the plugin's failure modes are silent — an inverted spawn check either lets creepers through or blocks spawns that should be permitted, with nothing in the log either way — the spawn listener in particular should keep its coverage.
 

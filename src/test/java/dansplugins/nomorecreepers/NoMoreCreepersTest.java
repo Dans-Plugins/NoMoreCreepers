@@ -11,13 +11,19 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.ArgumentCaptor;
 import preponderous.ponder.minecraft.bukkit.services.CommandService;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -25,6 +31,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -49,7 +56,11 @@ public class NoMoreCreepersTest {
     private final CommandSender sender = mock(Player.class);
     private final Command command = mock(Command.class);
     private final CommandService commandService = mock(CommandService.class);
+    private final Logger logger = mock(Logger.class);
     private FileConfiguration config;
+
+    @TempDir
+    File pluginsDirectory;
 
     @BeforeEach
     public void setUp() throws ReflectiveOperationException {
@@ -213,6 +224,77 @@ public class NoMoreCreepersTest {
         assertTrue(noMoreCreepers.onCommand(console, command, "nmc", args));
 
         verify(commandService).interpretAndExecuteCommand(console, "nmc", args);
+    }
+
+    /** The notice is the operator's disclosure, so it names where events really go. */
+    @Test
+    public void startupNoticeNamesTheConfiguredEndpoint() throws Exception {
+        config.set("usage-reporting.enabled", true);
+        config.set("usage-reporting.endpoint", "http://127.0.0.1:1");
+        config.set("usage-reporting.key", "test-key");
+
+        initializeUsageReporting();
+
+        ArgumentCaptor<String> notice = ArgumentCaptor.forClass(String.class);
+        verify(logger).info(notice.capture());
+        assertTrue(notice.getValue().startsWith("Usage reporting is on: NoMoreCreepers sends its name, version "
+                + "and command names to http://127.0.0.1:1,"), notice.getValue());
+    }
+
+    @Test
+    public void startupNoticeSaysWhyReportingIsOff() throws Exception {
+        config.set("usage-reporting.enabled", false);
+        config.set("usage-reporting.endpoint", "http://127.0.0.1:1");
+        config.set("usage-reporting.key", "test-key");
+
+        initializeUsageReporting();
+
+        verify(logger).info("Usage reporting is off (config.yml).");
+    }
+
+    /** Thrown out of onEnable, the client's refusal of a blank URL would skip the notice. */
+    @Test
+    public void blankEndpointLeavesReportingOffInsteadOfFailingStartup() throws Exception {
+        config.set("usage-reporting.enabled", true);
+        config.set("usage-reporting.endpoint", "");
+        config.set("usage-reporting.key", "test-key");
+
+        initializeUsageReporting();
+
+        verify(logger).info("Usage reporting is off (config.yml).");
+    }
+
+    /**
+     * Runs the startup step that onEnable ends with, on the mock. getDescription and
+     * getDataFolder are final, so they run for real and read these fields. The environment is
+     * emptied as in {@link #reportedBody}, and the client is closed so no thread outlives the test.
+     */
+    private void initializeUsageReporting() throws Exception {
+        setPluginField("description", new PluginDescriptionFile("NoMoreCreepers", "1.3.2", "main"));
+        setPluginField("dataFolder", new File(pluginsDirectory, "NoMoreCreepers"));
+        when(noMoreCreepers.getLogger()).thenReturn(logger);
+        Method initialize = NoMoreCreepers.class.getDeclaredMethod("initializeUsageReporting");
+        initialize.setAccessible(true);
+
+        Field environmentField = TraceClient.class.getDeclaredField("environment");
+        environmentField.setAccessible(true);
+        Object realEnvironment = environmentField.get(null);
+        Function<String, String> emptyEnvironment = name -> null;
+        environmentField.set(null, emptyEnvironment);
+        try {
+            initialize.invoke(noMoreCreepers);
+        } finally {
+            environmentField.set(null, realEnvironment);
+            Field traceField = NoMoreCreepers.class.getDeclaredField("trace");
+            traceField.setAccessible(true);
+            ((TraceClient) traceField.get(noMoreCreepers)).close();
+        }
+    }
+
+    private void setPluginField(String name, Object value) throws ReflectiveOperationException {
+        Field field = JavaPlugin.class.getDeclaredField(name);
+        field.setAccessible(true);
+        field.set(noMoreCreepers, value);
     }
 
     private void assertOnlyThePlayersCommandIsReported(CommandSender nonPlayer) throws Exception {
