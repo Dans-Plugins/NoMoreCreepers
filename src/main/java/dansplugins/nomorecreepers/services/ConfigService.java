@@ -124,13 +124,17 @@ public class ConfigService {
     // the key would be "" and would turn reporting off on every existing
     // installation. Verified against YamlConfiguration, not assumed.
 
+    /** An emptied endpoint is off, like an emptied key, rather than the default server. */
     public boolean isUsageReportingEnabled() {
-        return getBoolean(USAGE_REPORTING_ENABLED_KEY);
+        String endpoint = getString(USAGE_REPORTING_ENDPOINT_KEY);
+        boolean emptied = endpoint != null && endpoint.trim().isEmpty();
+        return getBoolean(USAGE_REPORTING_ENABLED_KEY) && !emptied;
     }
 
+    /** Never blank: the trace client throws on a blank URL, which would fail onEnable. */
     public String getUsageReportingEndpoint() {
         String endpoint = getString(USAGE_REPORTING_ENDPOINT_KEY);
-        return endpoint != null ? endpoint : DEFAULT_USAGE_REPORTING_ENDPOINT;
+        return endpoint == null || endpoint.trim().isEmpty() ? DEFAULT_USAGE_REPORTING_ENDPOINT : endpoint;
     }
 
     /** Empty when no key is configured or bundled, which the client treats as "off". */

@@ -51,7 +51,8 @@ public class NoMoreCreepers extends PonderBukkitPlugin {
      */
     private void initializeUsageReporting() {
         configService.saveUsageReportingDefaultsIfNotPresent();
-        trace = TraceClient.builder(configService.getUsageReportingEndpoint(), getName(), getDescription().getVersion())
+        String endpoint = configService.getUsageReportingEndpoint();
+        trace = TraceClient.builder(endpoint, getName(), getDescription().getVersion())
                 .key(configService.getUsageReportingKey())
                 .enabled(configService.isUsageReportingEnabled())
                 .serverWideConfig(getDataFolder().getParentFile())
@@ -59,7 +60,7 @@ public class NoMoreCreepers extends PonderBukkitPlugin {
                 .build();
         if (trace.isEnabled()) {
             getLogger().info("Usage reporting is on: " + getName() + " sends its name, version and command names to "
-                    + "https://trace.danielstephenson.dev, plus a random server ID (server-id in plugins/trace/config.yml) - nothing about players. Turn it off with "
+                    + endpoint + ", plus a random server ID (server-id in plugins/trace/config.yml) - nothing about players. Turn it off with "
                     + "usage-reporting.enabled: false in this plugin's config.yml, or for every plugin with "
                     + "enabled: false in plugins/trace/config.yml. "
                     + "Details: https://danielstephenson.dev/usage-reporting");

@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
+- An empty `usage-reporting.endpoint` no longer throws out of the plugin's startup. The trace client refuses a blank URL, so `endpoint: ""` stopped `onEnable` before the usage-reporting notice was logged. It now means reporting is off, as an empty key does, and the console says so.
+- The startup usage-reporting notice now names the configured `usage-reporting.endpoint`. It always named the default server, which was wrong for a server that had changed the option.
+- `CONFIG.md` and the bundled `config.yml` comment now say that only an empty string turns reporting off through `endpoint` or `key`. A line with no value at all, such as `key:`, reads as missing and uses the bundled value, so reporting stays on.
 - `CONTRIBUTING.md`'s requirements now list a JDK and Maven, which its build and test steps use. The build targets Java 8 and the `Build` workflow runs on JDK 8.
 - `CONTRIBUTING.md` no longer says issues are grouped into milestones. No issue in this repository has ever had one.
 
