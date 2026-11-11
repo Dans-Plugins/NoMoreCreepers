@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.4.1] – 2026-11-08
+
 ### Fixed
 
 - An empty `usage-reporting.endpoint` no longer throws out of the plugin's startup. The trace client refuses a blank URL, so `endpoint: ""` stopped `onEnable` before the usage-reporting notice was logged. It now means reporting is off, as an empty key does, and the console says so.
