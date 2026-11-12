@@ -26,10 +26,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -38,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -46,8 +46,9 @@ import static org.mockito.Mockito.when;
 /**
  * Characterizes the plugin class's own logic: the version check that decides, on startup,
  * whether an existing config.yml gets the missing-defaults pass; the {@code allowSpawning}
- * lookup the spawn listener relies on; and how {@code onCommand} routes a command and what
- * usage event it reports for it. A false negative in the version check leaves a new option
+ * lookup the spawn listener relies on; how {@code onCommand} routes a command and what
+ * usage event it reports for it; and that {@code onDisable} sends a usage count still open.
+ * A false negative in the version check leaves a new option
  * off disk after an upgrade; a false positive rewrites the version on every start.
  */
 public class NoMoreCreepersTest {
@@ -285,9 +286,7 @@ public class NoMoreCreepersTest {
             initialize.invoke(noMoreCreepers);
         } finally {
             environmentField.set(null, realEnvironment);
-            Field traceField = NoMoreCreepers.class.getDeclaredField("trace");
-            traceField.setAccessible(true);
-            ((TraceClient) traceField.get(noMoreCreepers)).close();
+            closeTrace();
         }
     }
 
@@ -312,15 +311,62 @@ public class NoMoreCreepersTest {
     }
 
     /**
-     * Runs {@code action} with an enabled trace client pointed at an HTTP server on a loopback
-     * port, and returns the body of the one event it sent. The client's environment is emptied
-     * for the duration, so a DO_NOT_TRACK on the machine running the suite cannot disable it.
-     * {@code close()} waits for queued sends, so an extra event would be counted before the
-     * size is checked.
+     * A count still open when the plugin is disabled is sent then (CONFIG.md, Usage reporting).
+     * The trace client only does that if onDisable closes it; the bodies are read straight
+     * after onDisable, before the test's own close, so only the plugin's close can send it.
+     */
+    @Test
+    public void disablingSendsTheCountOfARepeatedCommandStillBeingCoalesced() throws Exception {
+        doCallRealMethod().when(noMoreCreepers).onDisable();
+        String[] args = {"help"};
+
+        List<String> bodies = bodiesSentDuring(() -> {
+            noMoreCreepers.onCommand(sender, command, "nmc", args);
+            noMoreCreepers.onCommand(sender, command, "nmc", args);
+            noMoreCreepers.onCommand(sender, command, "nmc", args);
+            noMoreCreepers.onDisable();
+        });
+
+        assertEquals(2, bodies.size(), bodies.toString());
+        assertEquals("{\"application\":\"NoMoreCreepers\",\"name\":\"command\","
+                + "\"tags\":{\"name\":\"nmc\",\"version\":\"1.3.2\"}}", bodies.get(0));
+        assertEquals("{\"application\":\"NoMoreCreepers\",\"name\":\"command\",\"value\":2.0,"
+                + "\"tags\":{\"name\":\"nmc\",\"version\":\"1.3.2\",\"coalesced\":\"2\"}}", bodies.get(1));
+    }
+
+    /**
+     * Runs {@code action} with an enabled trace client and returns the body of the one event it
+     * sent. The client is closed before the count is checked, and {@code close()} waits for
+     * queued sends, so an extra event would be counted.
      */
     private String reportedBody(Runnable action) throws Exception {
+        List<String> bodies = bodiesSentDuring(() -> {
+            action.run();
+            closeTrace();
+        });
+        assertEquals(1, bodies.size(), bodies.toString());
+        return bodies.get(0);
+    }
+
+    private void closeTrace() {
+        try {
+            Field traceField = NoMoreCreepers.class.getDeclaredField("trace");
+            traceField.setAccessible(true);
+            ((TraceClient) traceField.get(noMoreCreepers)).close();
+        } catch (ReflectiveOperationException e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    /**
+     * Runs {@code action} with an enabled trace client pointed at an HTTP server on a loopback
+     * port, and returns the bodies the server had received when {@code action} returned. The
+     * client's environment is emptied for the duration, so a DO_NOT_TRACK on the machine running
+     * the suite cannot disable it. The client is closed only afterwards, so anything it would
+     * send on closing is not in the list unless {@code action} closed it.
+     */
+    private List<String> bodiesSentDuring(Runnable action) throws Exception {
         List<String> bodies = new CopyOnWriteArrayList<>();
-        CountDownLatch arrived = new CountDownLatch(1);
         HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/", exchange -> {
             ByteArrayOutputStream body = new ByteArrayOutputStream();
@@ -332,7 +378,6 @@ public class NoMoreCreepersTest {
             bodies.add(new String(body.toByteArray(), StandardCharsets.UTF_8));
             exchange.sendResponseHeaders(201, -1);
             exchange.close();
-            arrived.countDown();
         });
         server.start();
 
@@ -351,10 +396,7 @@ public class NoMoreCreepersTest {
 
             action.run();
 
-            assertTrue(arrived.await(5, TimeUnit.SECONDS), "the command event should reach the server");
-            trace.close();
-            assertEquals(1, bodies.size(), bodies.toString());
-            return bodies.get(0);
+            return new ArrayList<>(bodies);
         } finally {
             if (trace != null) {
                 trace.close();
