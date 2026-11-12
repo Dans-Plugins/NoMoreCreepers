@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- A unit test for `NoMoreCreepers.onDisable`. `CONFIG.md` says a count of repeated commands still open when the plugin is disabled is sent then, which happens only because `onDisable` closes the trace client. The trace client's own tests cover `close()`, but nothing tied the plugin to calling it, so removing the call would have dropped up to a minute of counts on every shutdown with every test still passing. The test runs one command three times, disables the plugin, and checks that the event and the count of the two repeats both reached the server before the test closes the client itself. `README.md`'s Testing section mentions it.
+
 ## [1.4.1] – 2026-11-08
 
 ### Fixed
