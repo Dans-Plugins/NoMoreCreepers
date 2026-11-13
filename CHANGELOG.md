@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - A unit test for `NoMoreCreepers.onDisable`. `CONFIG.md` says a count of repeated commands still open when the plugin is disabled is sent then, which happens only because `onDisable` closes the trace client. The trace client's own tests cover `close()`, but nothing tied the plugin to calling it, so removing the call would have dropped up to a minute of counts on every shutdown with every test still passing. The test runs one command three times, disables the plugin, and checks that the event and the count of the two repeats both reached the server before the test closes the client itself. `README.md`'s Testing section mentions it.
+- Unit tests for `/nmc config set debugMode`. `debugMode` shares the boolean branch of `ConfigService.setConfigOption` with `allowSpawning`, but only `allowSpawning` was ever set in a test, so dropping `debugMode` from that branch would have stored it as the text `"true"`, which reads back as `false`, while the command still replied `Boolean set.` and every test passed. The new tests pin that `debugMode` is stored as a boolean and saved, and that `true` is accepted in any case for both options, as `COMMANDS.md` says.
 
 ## [1.4.1] – 2026-11-08
 
