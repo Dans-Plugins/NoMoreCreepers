@@ -99,6 +99,36 @@ public class ConfigServiceTest {
         verify(sender).sendMessage(ChatColor.RED + "That config option wasn't found.");
     }
 
+    /**
+     * debugMode shares the boolean branch with allowSpawning. Dropped from that branch, it would
+     * fall through to the string branch and be stored as the text "true", which getBoolean reads
+     * as false, while the command still reported success.
+     */
+    @Test
+    public void debugModeIsStoredAsABooleanAndTheConfigIsSaved() {
+        config.set("debugMode", false);
+
+        configService.setConfigOption("debugMode", "true", sender);
+
+        assertEquals(Boolean.TRUE, config.get("debugMode"));
+        assertTrue(configService.hasBeenAltered());
+        verify(sender).sendMessage(ChatColor.GREEN + "Boolean set.");
+        verify(noMoreCreepers).saveConfig();
+    }
+
+    /** COMMANDS.md says {@code true} sets true in any case. */
+    @Test
+    public void booleanValueTrueIsAcceptedInAnyCase() {
+        config.set("allowSpawning", false);
+        config.set("debugMode", false);
+
+        configService.setConfigOption("allowSpawning", "TRUE", sender);
+        configService.setConfigOption("debugMode", "True", sender);
+
+        assertEquals(Boolean.TRUE, config.get("allowSpawning"));
+        assertEquals(Boolean.TRUE, config.get("debugMode"));
+    }
+
     @Test
     public void unparseableBooleanValueBecomesFalse() {
         config.set("allowSpawning", true);
