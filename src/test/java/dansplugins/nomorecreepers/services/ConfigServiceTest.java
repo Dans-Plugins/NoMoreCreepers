@@ -194,14 +194,21 @@ public class ConfigServiceTest {
         verify(noMoreCreepers, never()).saveConfig();
     }
 
+    /**
+     * COMMANDS.md says a {@code String set.} reply is saved, like {@code Boolean set.}. The save
+     * sits after the branches, so moving it into the boolean branch would leave the value in
+     * memory only, lost on the next restart, while the command still replied {@code String set.}.
+     */
     @Test
-    public void anExistingNonBooleanOptionIsStoredAsAString() {
+    public void anExistingNonBooleanOptionIsStoredAsAStringAndTheConfigIsSaved() {
         config.set("someOtherOption", "old");
 
         configService.setConfigOption("someOtherOption", "new", sender);
 
-        assertEquals("new", config.getString("someOtherOption"));
+        assertEquals("new", config.get("someOtherOption"));
+        assertTrue(configService.hasBeenAltered());
         verify(sender).sendMessage(ChatColor.GREEN + "String set.");
+        verify(noMoreCreepers).saveConfig();
     }
 
     @Test
