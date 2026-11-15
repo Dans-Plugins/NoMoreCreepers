@@ -61,6 +61,20 @@ public class ConfigServiceTest {
         assertTrue(config.getBoolean("allowSpawning"));
     }
 
+    /**
+     * The defaults pass runs on the first start after every upgrade. Without the guard
+     * on debugMode it would reset a server's debugMode to false each time, and only the
+     * allowSpawning guard was tested.
+     */
+    @Test
+    public void existingDebugModeSurvivesTheDefaultsPass() {
+        config.set("debugMode", true);
+
+        configService.saveMissingConfigDefaultsIfNotPresent();
+
+        assertTrue(config.getBoolean("debugMode"));
+    }
+
     @Test
     public void versionIsOverwrittenByTheDefaultsPass() {
         config.set("version", "v1.0.0");
@@ -302,6 +316,11 @@ public class ConfigServiceTest {
         config.set("someDouble", 1.5);
 
         assertEquals(1.5, configService.getDoubleOrDefault("someDouble", 2.5));
+    }
+
+    @Test
+    public void unsetDoubleFallsBackToTheDefault() {
+        assertEquals(2.5, configService.getDoubleOrDefault("someDouble", 2.5));
     }
 
     @Test
