@@ -62,8 +62,8 @@ public class ConfigServiceTest {
     }
 
     /**
-     * The defaults pass runs on every start after an upgrade. Without the guard on
-     * debugMode it would reset a server's debugMode to false each time, and only the
+     * The defaults pass runs on the first start after every upgrade. Without the guard
+     * on debugMode it would reset a server's debugMode to false each time, and only the
      * allowSpawning guard was tested.
      */
     @Test
