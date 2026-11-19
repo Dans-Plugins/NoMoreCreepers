@@ -7,6 +7,7 @@ import dansplugins.nomorecreepers.commands.HelpCommand;
 import dansplugins.nomorecreepers.listeners.SpawnListener;
 import dansplugins.nomorecreepers.services.ConfigService;
 import dansplugins.nomorecreepers.trace.TraceClient;
+import dansplugins.nomorecreepers.trace.UsageReportingSetting;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -68,6 +69,22 @@ public class NoMoreCreepers extends PonderBukkitPlugin {
             getLogger().info("Usage reporting is off (" + trace.disabledReason() + ").");
         }
         trace.report("startup");
+    }
+
+    /**
+     * Writes the loaded config to config.yml without ever turning usage reporting back on. Every
+     * save goes through here: the defaults pass, the usage-reporting block written on upgrade, and
+     * /nmc config set. A config.yml Bukkit could not parse was loaded as empty, so saving would
+     * replace the operator's whole file (an opt-out included) with the defaults: it is left alone
+     * and an error is logged. And the loaded config can be older than the file, since an operator
+     * may set usage-reporting.enabled: false by hand while the server runs, so an opt-out on disk
+     * is carried into it first.
+     */
+    @Override
+    public void saveConfig() {
+        if (UsageReportingSetting.prepareToSave(getConfig(), new File(getDataFolder(), "config.yml"), getLogger())) {
+            super.saveConfig();
+        }
     }
 
     @Override

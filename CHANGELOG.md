@@ -13,6 +13,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - A unit test check that `/nmc config set` saves an option it stores as text. `COMMANDS.md` lists the `String set.` reply as saved, but the test for that branch only checked the value in memory, so moving the save into the boolean branch would have lost such a value on the next restart with every test still passing. The test now also checks that the config is saved and marked as changed.
 - A unit test that an existing `debugMode` survives the missing-defaults pass that runs on a first start and after an upgrade. Only `allowSpawning` was tested there, so losing the check that `debugMode` is unset before writing its default would have reset it to `false` on every upgrade with every test still passing. A test that `ConfigService.getDoubleOrDefault` returns the default for an unset option, which `getIntOrDefault` already had, is added alongside it.
 
+### Fixed
+
+- Usage reporting could be turned back on after an operator had turned it off. A quoted `enabled: "false"` (or any value that is not a boolean) was read as the bundled default, `true`; a `config.yml` that Bukkit could not parse was loaded as empty, and writing the usage-reporting block on startup could then replace the operator's whole file with the defaults (`enabled: true`); and `/nmc config set` could write a stale `enabled: true` over an `enabled: false` set by hand while the server was running. Now only `true`, `on` or `yes` turns reporting on, `config.yml` on disk is checked before every save and an opt-out found there is kept, and a `config.yml` that cannot be parsed is never overwritten: an error is logged and reporting stays off until it is fixed.
+- An empty `usage-reporting.enabled:` (no value) now turns usage reporting off. Bukkit drops a key with no value, so the bundled `true` used to win.
+- The vendored trace client is now 0.8.0, in which every opt-out fails closed: in `plugins/trace/config.yml` a quoted `enabled: "false"`, an empty `enabled:`, a typo, or a file that is there but cannot be read now turn reporting off; `TRACE_USAGE_REPORTING` set to anything but blank or `true`/`on`/`yes`/`1`, and `DO_NOT_TRACK` set to anything but blank or `0`/`false`/`off`/`no`, now turn it off too. Details: https://github.com/Stephenson-Software/trace-client-java/pull/51
+
 ## [1.4.1] – 2026-11-08
 
 ### Fixed
