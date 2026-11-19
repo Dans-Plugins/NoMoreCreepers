@@ -59,7 +59,7 @@ usage-reporting:
 **Default:** the plugin's key
 **Description:** Identifies this plugin to the trace server so reports are attributed to it. Not a secret: it ships in the default config and can only report as NoMoreCreepers. Empty (`key: ""`) means reporting is off regardless of `usage-reporting.enabled`.
 
-A `usage-reporting` line with nothing after the colon, such as `key:`, is not empty: it counts as missing, so the bundled value is used, and for `enabled:`, `endpoint:` and `key:` alike reporting stays on. To turn reporting off, use `enabled: false`.
+A `usage-reporting` line with nothing after the colon counts as missing for `endpoint:` and `key:`, so the bundled value is used. An `enabled:` with nothing after the colon turns reporting off.
 
 ## Usage reporting
 
