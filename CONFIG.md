@@ -38,7 +38,7 @@ allowSpawning: false
 
 **Type:** boolean
 **Default:** `true`
-**Description:** Whether the plugin reports usage events (see [Usage reporting](#usage-reporting) below). Set to `false` to turn it off. Only `true` (or `on`, `yes`) turns it on; any other value, including a quoted `"false"`, turns it off. Once turned off it stays off: the plugin never writes `config.yml` back with reporting on, even if the file was edited while the server was running, and never overwrites a `config.yml` it cannot parse (it logs an error instead, and reporting stays off until the file is fixed). This option is edited in the file and takes effect on the next server start. `/nmc config set` refuses it, along with the other `usage-reporting` options.
+**Description:** Whether the plugin reports usage events (see [Usage reporting](#usage-reporting) below). Set to `false` to turn it off. Only `true` (or `on`, `yes`) turns it on; any other value, including a quoted `"false"`, turns it off. Once turned off it stays off: the plugin never writes `config.yml` back with reporting on, even if the file was edited while the server was running, and never overwrites a `config.yml` it cannot parse (it logs an error instead, and reporting stays off until the file is fixed). This option is edited in the file and takes effect on the next server start. `/nmc config set` refuses it, along with the other `usage-reporting` options. Other spellings of the block or the switch (`usage_reporting:`, `usageReporting:`, `enable: false`, `disabled: true`), or `usage-reporting: false`, also count as off.
 
 **Example:**
 
@@ -59,7 +59,7 @@ usage-reporting:
 **Default:** the plugin's key
 **Description:** Identifies this plugin to the trace server so reports are attributed to it. Not a secret: it ships in the default config and can only report as NoMoreCreepers. Empty (`key: ""`) means reporting is off regardless of `usage-reporting.enabled`.
 
-A `usage-reporting` line with nothing after the colon, such as `key:`, is not empty: it counts as missing, so the bundled value is used, and for `enabled:`, `endpoint:` and `key:` alike reporting stays on. To turn reporting off, use `enabled: false`.
+A `usage-reporting` line with nothing after the colon counts as missing for `endpoint:` and `key:`, so the bundled value is used. An `enabled:` with nothing after the colon turns reporting off.
 
 ## Usage reporting
 
