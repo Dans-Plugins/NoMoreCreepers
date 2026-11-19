@@ -8,8 +8,13 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
@@ -377,7 +382,7 @@ public class ConfigServiceTest {
     public void usageReportingUsesTheOneArgumentGetters() {
         FileConfiguration mocked = mock(FileConfiguration.class);
         when(noMoreCreepers.getConfig()).thenReturn(mocked);
-        when(mocked.getBoolean("usage-reporting.enabled")).thenReturn(true);
+        when(mocked.get("usage-reporting.enabled")).thenReturn(true);
         when(mocked.getString("usage-reporting.endpoint")).thenReturn("https://trace.danielstephenson.dev");
         when(mocked.getString("usage-reporting.key")).thenReturn("bundled-key");
 
@@ -387,6 +392,33 @@ public class ConfigServiceTest {
         verify(mocked, never()).getString(eq("usage-reporting.key"), anyString());
         verify(mocked, never()).getString(eq("usage-reporting.endpoint"), anyString());
         verify(mocked, never()).getBoolean(eq("usage-reporting.enabled"), anyBoolean());
+    }
+
+    /**
+     * An operator who sets enabled: false by hand while the server runs, or writes it quoted, must
+     * find reporting off: the loaded config (still true) must not win over config.yml on disk.
+     */
+    @Test
+    public void anOptOutOnDiskWinsOverTheLoadedConfig(@TempDir Path dataFolder) throws Exception {
+        // getDataFolder() is final, so the field behind it is set on the mock.
+        Field field = JavaPlugin.class.getDeclaredField("dataFolder");
+        field.setAccessible(true);
+        field.set(noMoreCreepers, dataFolder.toFile());
+        config.setDefaults(bundledConfig());
+        config.set("usage-reporting.enabled", true);
+        assertTrue(configService.isUsageReportingEnabled());
+
+        Files.write(dataFolder.resolve("config.yml"), "usage-reporting:\n  enabled: \"false\"\n".getBytes(StandardCharsets.UTF_8));
+
+        assertFalse(configService.isUsageReportingEnabled());
+    }
+
+    @Test
+    public void aQuotedFalseInTheLoadedConfigIsOff() {
+        config.setDefaults(bundledConfig());
+        config.set("usage-reporting.enabled", "false");
+
+        assertFalse(configService.isUsageReportingEnabled());
     }
 
     @Test

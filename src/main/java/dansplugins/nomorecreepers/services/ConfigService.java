@@ -12,10 +12,13 @@ package dansplugins.nomorecreepers.services;
  */
 
 import dansplugins.nomorecreepers.NoMoreCreepers;
+import dansplugins.nomorecreepers.trace.UsageReportingSetting;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.FileConfiguration;
+
+import java.io.File;
 
 /**
  * @author Daniel McCoy Stephenson
@@ -124,11 +127,21 @@ public class ConfigService {
     // the key would be "" and would turn reporting off on every existing
     // installation. Verified against YamlConfiguration, not assumed.
 
-    /** An emptied endpoint is off, like an emptied key, rather than the default server. */
+    /**
+     * An emptied endpoint is off, like an emptied key, rather than the default server. Fails
+     * closed: only a value that clearly means "on" turns reporting on (getBoolean() would read a
+     * quoted "false" as the bundled true), and config.yml as it is on disk right now must allow it
+     * too, so neither a stale loaded copy nor Bukkit's fallback to the defaults for a file it could
+     * not parse can override an opt-out.
+     */
     public boolean isUsageReportingEnabled() {
         String endpoint = getString(USAGE_REPORTING_ENDPOINT_KEY);
         boolean emptied = endpoint != null && endpoint.trim().isEmpty();
-        return getBoolean(USAGE_REPORTING_ENABLED_KEY) && !emptied;
+        return UsageReportingSetting.isEnabled(getConfig(), configFile()) && !emptied;
+    }
+
+    private File configFile() {
+        return new File(noMoreCreepers.getDataFolder(), "config.yml");
     }
 
     /** Never blank: the trace client throws on a blank URL, which would fail onEnable. */

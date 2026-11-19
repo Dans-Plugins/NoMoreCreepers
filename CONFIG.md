@@ -38,7 +38,7 @@ allowSpawning: false
 
 **Type:** boolean
 **Default:** `true`
-**Description:** Whether the plugin reports usage events (see [Usage reporting](#usage-reporting) below). Set to `false` to turn it off. This option is edited in the file and takes effect on the next server start. `/nmc config set` refuses it, along with the other `usage-reporting` options.
+**Description:** Whether the plugin reports usage events (see [Usage reporting](#usage-reporting) below). Set to `false` to turn it off. Only `true` (or `on`, `yes`) turns it on; any other value, including a quoted `"false"`, turns it off. Once turned off it stays off: the plugin never writes `config.yml` back with reporting on, even if the file was edited while the server was running, and never overwrites a `config.yml` it cannot parse (it logs an error instead, and reporting stays off until the file is fixed). This option is edited in the file and takes effect on the next server start. `/nmc config set` refuses it, along with the other `usage-reporting` options.
 
 **Example:**
 
